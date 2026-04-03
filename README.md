@@ -14,7 +14,7 @@ This project investigates different approaches to imputing missing values in tra
 
 * Classical statistical methods
 * Graph-based methods
-* Deep spatio-temporal models (SAGE-Voronoi / ST-GCN)
+* Deep spatio-temporal models (SAGE-Voronoi)
 
 All experiments are conducted on real-world traffic data from Darmstadt.
 
