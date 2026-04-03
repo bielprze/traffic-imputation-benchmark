@@ -1,4 +1,3 @@
-# traffic-imputation-benchmark
 # Imputation of Missing Traffic Sensor Data
 
 This repository contains code and experiments for the paper:
