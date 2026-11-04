@@ -1,75 +1,227 @@
-# Configuration for both train.py and evaluate.py
-
-autoregressive_imputation: true
-
-# Data & paths
-folder_to_load: "2024-03-01_35"
-geojson_path: "sensors_location.geojson"
-save_folder: "weights"
-output_csv: "evaluation_results.csv"
-
-# Train/val/test split (fractions)
-train_size: 0.5
-val_size: 0.2
-
-# Graph parameters
-sigma2: 0.1
-epsilon: 0.95
-
-# Delaunay settings
-use_delaunay: true
-max_depth: 5
-adj_scaler_options:
-  - 0
-  - 1
-  - 2
-
-# Model / data parameters
-in_feat: 1
-out_feat: 10
-lstm_units: 64
-graph_conv_params:
-  aggregation_type: "mean"
-  combination_type: "concat"
-  activation: null
-
-# Training loop settings
-epochs: 40
-batch_size: 64
-input_seq_len: 12
-forecast_horizons:
-  - 1
-  - 2
-  - 3
-seeds: [0,1,2,3,4,5,6,7,8,9]
-
-# temp, for testing purpose
-original_csv: "combined_sensors_2023-01-01_2023-01-31.csv"
-masked_csv: "data_masked.csv"
-metrics_json: "metrics.json"
-filled_csv: "imputed_values.csv"
-
-# single wide CSV
-data_csv: "combined_sensors_2023-01-01_2023-01-31.csv"
-
-# output wide filled (after imputation)
-output_csv: "data_filled.csv"
-
-# data_imputation masking
-apply_masking: true
-impute_num_records: 144
-impute_num_columns: "all"
-impute_columns: null   # or specific columns ["A001", "A010"]
-masked_values_csv: "masked_values.csv"
-
-summary_csv: "imputation_summary.csv"
-gui_results_csv: "gui_results.csv"
-
-ar_batch_size: 64
-
-baseline_method: "rolling_mean"    # or: ffill_bfill, median, rolling_mean, spline, knn_columns
-# or graph:
-# baseline_method: "graph_laplacian", "graph_temporal"
-edges_csv: "edges.csv"       # needed only for graph_*
-lam: 1.0
-lam_time: 0.1
+{
+  "protocol_version": "repository-final-grin-v3-non-grin-v2",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "datasets": [
+    {
+      "name": "darmstadt_jan2023_nanonly",
+      "path": "combined_sensors_2023-01-01_2023-01-31.csv",
+      "edges": "edges.csv",
+      "panel": "train_only",
+      "qc_upper": null
+    },
+    {
+      "name": "darmstadt_octdec2022_nanonly",
+      "path": "combined_sensors_2022-10-01_2022-12-31.csv",
+      "edges": "edges_octdec.csv",
+      "panel": "train_only",
+      "qc_upper": null
+    }
+  ],
+  "methods": [
+    "linear",
+    "median",
+    "ffill_bfill",
+    "rolling_mean",
+    "knn",
+    "historical",
+    "graph_laplacian",
+    "graph_temporal",
+    "GAIN",
+    "GRIN",
+    "knn_unscaled",
+    "sage_voronoi"
+  ],
+  "scenarios": [
+    {
+      "name": "block_1",
+      "kind": "block",
+      "length": 1
+    },
+    {
+      "name": "block_2",
+      "kind": "block",
+      "length": 2
+    },
+    {
+      "name": "block_4",
+      "kind": "block",
+      "length": 4
+    },
+    {
+      "name": "block_8",
+      "kind": "block",
+      "length": 8
+    },
+    {
+      "name": "block_16",
+      "kind": "block",
+      "length": 16
+    },
+    {
+      "name": "block_32",
+      "kind": "block",
+      "length": 32
+    },
+    {
+      "name": "block_64",
+      "kind": "block",
+      "length": 64
+    },
+    {
+      "name": "block_128",
+      "kind": "block",
+      "length": 128
+    },
+    {
+      "name": "block_144",
+      "kind": "block",
+      "length": 144
+    },
+    {
+      "name": "mcar_10",
+      "kind": "mcar",
+      "rate": 0.1
+    },
+    {
+      "name": "mcar_30",
+      "kind": "mcar",
+      "rate": 0.3
+    },
+    {
+      "name": "mcar_50",
+      "kind": "mcar",
+      "rate": 0.5
+    },
+    {
+      "name": "synchronous_144",
+      "kind": "synchronous",
+      "length": 144
+    }
+  ],
+  "validation_mask": {
+    "name": "val_mcar20",
+    "kind": "mcar",
+    "rate": 0.2
+  },
+  "parameter_grid": {
+    "linear": [
+      {}
+    ],
+    "median": [
+      {}
+    ],
+    "ffill_bfill": [
+      {}
+    ],
+    "historical": [
+      {}
+    ],
+    "rolling_mean": [
+      {
+        "window": 5
+      },
+      {
+        "window": 12
+      }
+    ],
+    "knn": [
+      {
+        "k": 3
+      },
+      {
+        "k": 5
+      },
+      {
+        "k": 10
+      }
+    ],
+    "graph_laplacian": [
+      {
+        "space": 0.1
+      },
+      {
+        "space": 1
+      },
+      {
+        "space": 10
+      }
+    ],
+    "graph_temporal": [
+      {
+        "space": 0.1,
+        "temporal": 0.1
+      },
+      {
+        "space": 1,
+        "temporal": 1
+      },
+      {
+        "space": 1,
+        "temporal": 10
+      }
+    ],
+    "knn_unscaled": [
+      {
+        "k": 5
+      }
+    ]
+  },
+  "neural": {
+    "GAIN": {
+      "epochs": 200,
+      "patience": 20,
+      "window": 24,
+      "batch_size": 4,
+      "steps_per_epoch": 16,
+      "hidden": 16,
+      "lr": 0.001,
+      "training_mask_rate": 0.2,
+      "gain_steps_per_epoch": 100,
+      "gain_batch_size": 128,
+      "gain_alpha": 100,
+      "hint_rate": 0.9,
+      "device": "cpu"
+    },
+    "GRIN": {
+      "epochs": 300,
+      "patience": 40,
+      "window": 24,
+      "batch_size": 32,
+      "samples_per_epoch": 5120,
+      "hidden": 64,
+      "ff_size": 64,
+      "embedding_size": 8,
+      "ff_dropout": 0.0,
+      "n_layers": 1,
+      "kernel_size": 2,
+      "decoder_order": 1,
+      "layer_norm": false,
+      "lr": 0.001,
+      "eta_min": 0.0001,
+      "whiten_prob": 0.05,
+      "pred_loss_weight": 1.0,
+      "grad_clip": 5.0,
+      "device": "cuda",
+      "clip_nonnegative": true
+    }
+  },
+  "notes": "Final manuscript protocol. Only NaN missing. No test-based tuning. GRIN author reference v3 only. Fixed seeds 0-4, two Darmstadt periods.",
+  "sage": {
+    "epochs": 200,
+    "patience": 20,
+    "window": 12,
+    "batch_size": 64,
+    "lstm_units": 64,
+    "out_feat": 10,
+    "learning_rate": 0.0002,
+    "max_depth": 5,
+    "adj_scaler": 0,
+    "threads": 2
+  }
+}
