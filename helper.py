@@ -1,212 +1,224 @@
 """
-helper.py
-
-Utility functions for loading and preprocessing sensor and GeoJSON data.
+Train-only sensor qualification, chronological splits, profiles, masks
+and metrics.
 """
 
+import hashlib
 import json
+import warnings
 import os
-from typing import Dict, Tuple, List, Optional
-
-import pandas as pd
+import uuid
+from pathlib import Path
 import numpy as np
-from pyproj import Transformer
+import pandas as pd
 
-EXCLUDE_KEYS = ['A173']  # sometimes, some sensors must be excluded due to corruption in data
-
-
-def load_and_normalize_geojson(
-    file_path: str, width: int = 256, height: int = 256
-) -> Dict[str, Tuple[float, float]]:
-    """
-    Load a GeoJSON file and normalize the point coordinates to fit within
-    a width x height bitmap.
-    """
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-
-    coords = [feat["geometry"]["coordinates"] for feat in data.get("features", [])]
-    if not coords:
-        return {}
-
-    xs, ys = zip(*coords)
-    min_x, max_x = min(xs), max(xs)
-    min_y, max_y = min(ys), max(ys)
-
-    normalized: Dict[str, Tuple[float, float]] = {}
-    for feat in data.get("features", []):
-        sensor_id = feat["properties"].get("sensor_id")
-        lon, lat = feat["geometry"]["coordinates"]
-
-        norm_x = ((lon - min_x) / (max_x - min_x) * width) if max_x != min_x else width / 2
-        norm_y = ((lat - min_y) / (max_y - min_y) * height) if max_y != min_y else height / 2
-
-        normalized[sensor_id] = (norm_x, norm_y)
-
-    return normalized
+ROOT = Path(__file__).resolve().parent
 
 
-def load_data_and_combine_with_geojson(
-    folder_to_load: str,
-    geojson_path: str
-) -> Tuple[Dict[str, Tuple[float, float]], np.ndarray, List[str]]:
-    """
-    OLD PIPELINE (per-sensor CSV in folder).
+def digest(x):
+    return hashlib.sha256(np.ascontiguousarray(x).tobytes()).hexdigest()
 
-    Load sensor locations (projected), time series data, filter out
-    zero-only sensors, and assemble into a full data matrix.
 
-    Returns:
-      - dict of sensor_id → (x, y)
-      - 2D numpy array of shape (time_steps, num_sensors)
-      - list of all originally found sensor_ids
-    """
-    sensor_points = _load_geojson_recalculate(geojson_path)
-    sensor_values, max_len = _load_sensor_data(folder_to_load)
+def atomic_json(path, value):
+    tmp = path.with_name(path.name + "." + uuid.uuid4().hex + ".tmp")
+    tmp.write_text(json.dumps(value, indent=2))
+    os.replace(tmp, path)
 
-    all_keys = list(sensor_values.keys())
-    clean_points = _clean_keys_remove_zero(
-        sensor_points,
-        all_keys,
-        sensor_values,
-        exclude_keys=EXCLUDE_KEYS
+
+def metrics(y, p):
+    if not len(y) or not np.isfinite(y).all() or not np.isfinite(p).all():
+        raise ValueError("Empty/nonfinite evaluation")
+    e = np.abs(y - p)
+    nz = y != 0
+    return {
+        "MAE": float(e.mean()),
+        "RMSE": float(np.sqrt(np.mean(e**2))),
+        "MRE": float(np.mean(e[nz] / np.abs(y[nz]))) if nz.any() else np.nan,
+    }
+
+
+def load_dataset(cfg, out):
+    path = ROOT / cfg["path"]
+    df = pd.read_csv(path, index_col=0, parse_dates=True).sort_index()
+    if df.index.has_duplicates:
+        raise ValueError("Duplicate timestamps")
+    expected = pd.date_range(df.index.min(), df.index.max(), freq="10min")
+    df = df.reindex(expected)
+    x = df.to_numpy(float)
+    if np.isinf(x).any() or (x < 0).any():
+        raise ValueError(
+            "Unexpected infinite/negative counts: stop for data audit, do not"
+            " convert to missing"
+        )
+    if cfg.get("qc_upper") is not None:
+        raise ValueError(
+            "This protocol counts only NaN as missing; QC threshold forbidden"
+        )
+    a, b = int(len(x) * 0.5), int(len(x) * 0.7)
+    train = x[:a]
+    observed = ~np.isnan(train)
+    allzero = observed.any(0) & np.all(np.isnan(train) | (train == 0), axis=0)
+    keep = (observed.mean(0) >= 0.9) & ~allzero
+    selection = [
+        {
+            "sensor": name,
+            "train_observed_fraction": float(observed[:, i].mean()),
+            "train_all_observed_zero": bool(allzero[i]),
+            "included": bool(keep[i]),
+        }
+        for i, name in enumerate(df.columns)
+    ]
+    if cfg.get("density", 1) < 1:
+        idx = np.flatnonzero(keep)
+        chosen = np.random.default_rng(20261007).choice(
+            idx, int(len(idx) * cfg["density"]), replace=False
+        )
+        keep[:] = False
+        keep[chosen] = True
+    x = x[:, keep]
+    names = df.columns[keep].tolist()
+    train = x[:a]
+    if (~np.isfinite(train).any(0)).any():
+        raise ValueError("Sensor without training observations")
+    mu = np.nanmean(train, 0)
+    sd = np.nanstd(train, 0)
+    sd[sd < 1e-6] = 1
+    med = np.nanmedian(train, 0)
+    edges = pd.read_csv(ROOT / cfg["edges"])
+    idx = {s: i for i, s in enumerate(names)}
+    A = np.zeros((len(names), len(names)))
+    for u, v in edges.iloc[:, :2].itertuples(index=False, name=None):
+        if u in idx and v in idx and u != v:
+            A[idx[u], idx[v]] = A[idx[v], idx[u]] = 1
+    splits = {"train": [0, a], "validation": [a, b], "test": [b, len(x)]}
+    meta = {
+        "config": cfg,
+        "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "sensors": names,
+        "splits": splits,
+        "dates": {
+            k: [str(df.index[i]), str(df.index[j - 1])]
+            for k, (i, j) in splits.items()
+        },
+        "profile_source": "train only; NaN only",
+        "selection_source": "train only",
+        "selection": selection,
+        "isolates": int((A.sum(0) == 0).sum()),
+        "qc_note": (
+            "No upper threshold. Zeros and large counts are observed; only NaN"
+            " missing. Constant positive sensors retained."
+        ),
+    }
+    out.mkdir(parents=True, exist_ok=True)
+    atomic_json(out / "dataset.json", meta)
+    tmp = out / ("data_" + uuid.uuid4().hex + ".npz")
+    np.savez_compressed(
+        tmp,
+        values=x,
+        timestamps=df.index.to_numpy()
+        .astype("datetime64[ns]")
+        .astype("int64"),
+        mean=mu,
+        std=sd,
+        median=med,
+        adj=A,
     )
-    kept_keys = list(clean_points.keys())
-
-    full_data = np.zeros((max_len, len(kept_keys)), dtype=float)
-    for idx, key in enumerate(kept_keys):
-        vals = sensor_values.get(key, [])
-        n = len(vals)
-        full_data[:n, idx] = vals
-
-    return clean_points, full_data, all_keys
-
-
-# -------------------------- NEW PIPELINE (wide CSV) -------------------------- #
-
-def load_wide_csv_and_filter_geojson(
-    csv_path: str,
-    geojson_path: str,
-    timestamp_col: str = "timestamp",
-    exclude_keys: Optional[List[str]] = None,
-) -> Tuple[np.ndarray, np.ndarray, List[str], Dict[str, Tuple[float, float]]]:
-    """
-    New loader for wide CSV format:
-      timestamp, A001, A002, ...
-
-    It also loads geojson and filters sensors to those present in CSV headers.
-
-    Returns:
-      timestamps: (T,) numpy array of datetime64 / objects (from pandas)
-      data:       (T, N) float array aligned to sensor_names
-      sensor_names: list[str] in the same order as columns in the CSV
-      sensors_points: dict sensor_id -> (x,y) projected points, in the same order
-    """
-    exclude_keys = exclude_keys or []
-
-    df = pd.read_csv(csv_path)
-    if timestamp_col not in df.columns:
-        raise ValueError(f"CSV must contain '{timestamp_col}' column. Found: {list(df.columns)[:10]}...")
-
-    # parse timestamp
-    df[timestamp_col] = pd.to_datetime(df[timestamp_col])
-
-    # sensors from CSV headers (keep order)
-    sensor_names = [c for c in df.columns if c != timestamp_col]
-
-    # apply exclude list
-    sensor_names = [s for s in sensor_names if s not in exclude_keys]
-
-    if len(sensor_names) == 0:
-        raise ValueError("No sensor columns found in CSV (after exclusions).")
-
-    # load geojson points (projected)
-    points_all = _load_geojson_recalculate(geojson_path)
-
-    # filter to sensors present in BOTH csv and geojson
-    missing_in_geo = [s for s in sensor_names if s not in points_all]
-    if missing_in_geo:
-        # If some CSV columns have no geojson entry -> we drop them to keep graph consistent
-        # Alternatively you could raise; dropping is usually more convenient.
-        sensor_names = [s for s in sensor_names if s in points_all]
-
-    if len(sensor_names) == 0:
-        raise ValueError("After filtering by geojson, no sensors remain. Check headers vs geojson sensor_id.")
-
-    # build ordered sensors dict
-    sensors_points = {sid: points_all[sid] for sid in sensor_names}
-
-    # data to float (NaNs preserved)
-    data = df[sensor_names].to_numpy(dtype=float)
-    timestamps = df[timestamp_col].to_numpy()
-
-    return timestamps, data, sensor_names, sensors_points
+    os.replace(tmp, out / "data.npz")
+    profile = profile_missing(train, df.index[:a])
+    atomic_json(out / "profile.json", profile)
+    return dict(
+        x=x,
+        index=df.index,
+        names=names,
+        a=a,
+        b=b,
+        mu=mu,
+        sd=sd,
+        med=med,
+        A=A,
+        profile=profile,
+        meta=meta,
+    )
 
 
-# -------------------------- Internals (unchanged) --------------------------- #
-
-def _load_geojson_recalculate(file_path: str) -> Dict[str, Tuple[float, float]]:
-    """
-    Internal: load a GeoJSON file and project coordinates from
-    EPSG:4326 to EPSG:2100 (Greek Grid).
-    """
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-
-    transformer = Transformer.from_crs("EPSG:4326", "EPSG:2100", always_xy=True)
-    points: Dict[str, Tuple[float, float]] = {}
-
-    for feat in data.get("features", []):
-        lon, lat = feat["geometry"]["coordinates"]
-        sensor_id = feat["properties"].get("sensor_id")
-        x, y = transformer.transform(lon, lat)
-        points[sensor_id] = (x, y)
-
-    return points
+def runs(mask):
+    changes = np.diff(np.r_[False, mask, False].astype(int))
+    s = np.flatnonzero(changes == 1)
+    e = np.flatnonzero(changes == -1)
+    return s, e
 
 
-def _load_sensor_data(folder_path: str) -> Tuple[Dict[str, List[int]], int]:
-    """
-    Internal: read all CSVs in a folder, extract the 'Total' column
-    as int lists, return mapping sensor_id → values and the maximum series length.
-    """
-    data: Dict[str, List[int]] = {}
-    max_len = 0
+def profile_missing(train, times):
+    natural = np.isnan(train)
+    lens = []
+    hour = np.zeros(24, int)
+    for c in range(train.shape[1]):
+        s, e = runs(natural[:, c])
+        lens.extend((e - s).tolist())
+        for t in s:
+            hour[times[t].hour] += 1
+    corr = pd.DataFrame(natural.astype(float)).corr().to_numpy()
+    upper = corr[np.triu_indices(train.shape[1], 1)]
+    upper = upper[np.isfinite(upper)]
+    return {
+        "source_rows": [0, len(train)],
+        "missing_definition": "NaN only",
+        "natural_rate_per_sensor": natural.mean(0).tolist(),
+        "natural_lengths": lens,
+        "start_hour_counts": hour.tolist(),
+        "simultaneous_missing_counts": natural.sum(1).tolist(),
+        "mean_missingness_correlation": (
+            float(upper.mean()) if len(upper) else None
+        ),
+        "empirical_replay_supported": bool(natural.any()),
+        "interpretation": (
+            "Observed unavailability, unknown cause; zeros always legitimate"
+        ),
+    }
 
-    for fname in os.listdir(folder_path):
-        sensor_id, ext = os.path.splitext(fname)
-        full_path = os.path.join(folder_path, fname)
-        try:
-            df = pd.read_csv(full_path)
-            if 'Total' in df.columns:
-                vals = df['Total'].dropna().astype(int).tolist()
-                data[sensor_id] = vals
-                max_len = max(max_len, len(vals))
-            else:
-                print(f"Warning: 'Total' column not found in {fname}")
-        except Exception as e:
-            print(f"Error processing {fname}: {e}")
 
-    return data, max_len
-
-
-def _clean_keys_remove_zero(
-    sensors: Dict[str, Tuple[float, float]],
-    keys: List[str],
-    sensor_values: Dict[str, List[float]],
-    exclude_keys: List[str]
-) -> Dict[str, Tuple[float, float]]:
-    """
-    Internal: remove sensors that are in exclude_keys or whose entire
-    value series is zero.
-    """
-    clean: Dict[str, Tuple[float, float]] = {}
-
-    for key in keys:
-        if key in exclude_keys or key not in sensors:
-            continue
-        vals = sensor_values.get(key, [])
-        if any(abs(v) > 1e-6 for v in vals):
-            clean[key] = sensors[key]
-
-    return clean
+def make_mask(x, scenario, seed, profile=None, train=None):
+    rng = np.random.default_rng(seed)
+    obs = np.isfinite(x)
+    mask = np.zeros_like(obs)
+    T, N = x.shape
+    kind = scenario["kind"]
+    if kind == "mcar":
+        idx = np.flatnonzero(obs)
+        mask.flat[
+            rng.choice(idx, round(len(idx) * scenario["rate"]), replace=False)
+        ] = True
+    elif kind in ["block", "synchronous"]:
+        shared = (
+            int(rng.integers(1, T - scenario.get("length", 144)))
+            if kind == "synchronous"
+            else None
+        )
+        for c in range(N):
+            length = scenario["length"]
+            if length >= T - 2:
+                raise ValueError("Gap too large")
+            start = (
+                shared
+                if shared is not None
+                else int(rng.integers(1, T - length))
+            )
+            mask[start : start + length, c] = obs[start : start + length, c]
+    elif kind == "empirical_replay":
+        # Only train NaN, never zeros or quality-threshold exclusions.
+        natural = np.isnan(train)
+        if not natural.any():
+            raise ValueError(
+                "No natural missingness in training: empirical replay"
+                " unavailable"
+            )
+        for t in range(0, T, 144):
+            n = min(144, T - t)
+            s = int(rng.integers(0, len(train) - n + 1))
+            mask[t : t + n] = natural[s : s + n] & obs[t : t + n]
+    else:
+        raise ValueError(kind)
+    if not mask.any():
+        raise ValueError("No evaluable artificially masked cells")
+    assert not (mask & ~obs).any()
+    return mask
