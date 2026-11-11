@@ -1,0 +1,48 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=18mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,makecell,xcolor,graphicx,textcomp}
+\usepackage[hidelinks,pdfauthor={Przemyslaw Bielecki and Tomasz Hachaj},pdftitle={Supplementary Material: Imputation of Missing Traffic Sensor Data}]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Supplementary Material\par}
+\vspace{8mm}
+{\Large Imputation of Missing Traffic Sensor Data:\\
+A Comparative Study of Classical, Graph-Based,\\
+and Deep Spatio-Temporal Methods\par}
+\vspace{5mm}
+Przemys{\l}aw Bielecki and Tomasz Hachaj
+\end{center}
+\vspace{8mm}
+This supplement contains the complete tabulated results accompanying the revised manuscript, using the completed road graphs and the five prescribed seeds. It reports test results from January 2023 and October--December 2022 in Darmstadt. Graph Laplacian, Graph Temporal and GRIN use graphs with 254 and 252 edges, respectively, with no isolated sensors after training-based qualification and connection through excluded sensors.
+
+\textbf{Contents}
+\begin{itemize}
+\item \hyperref[tab:supp_p01_1]{Tables S1--S24}: complete primary results for all 13 masking scenarios, all 12 methods and MAE, RMSE and MRE.
+\item \hyperref[tab:supp_p01_25]{Tables S25--S96}: corresponding results for sensors A023, A027 and A142.
+\item \hyperref[tab:p03_A1]{Tables A1--A31}: persistent stream loss, graph and scaling controls, traffic-count and graph-degree strata, daily aggregation and the separate forecasting check.
+\end{itemize}
+
+Machine-readable summaries and individual-run results are provided in the accompanying \texttt{data/} directory. The \texttt{README.md} file maps the CSV files to the tables and describes how to compile this document. Training records and rounding comparisons are included as CSV files.
+
+Every reported interval uses complete seed runs as the replication unit. The five-run intervals are conditional on fixed chronological splits, not estimates of between-city uncertainty. Natural-missingness realism has not been quantitatively validated. The two periods come from one city.
+
+This document is self-contained and does not require the main manuscript's LaTeX class or bibliography.
+\clearpage
+\renewcommand{\theHtable}{S\arabic{table}}
+\input{supplementary_results_p01.tex}
+\clearpage
+\renewcommand{\theHtable}{A\arabic{table}}
+\input{supplementary_analyses_p03.tex}
+\end{document}

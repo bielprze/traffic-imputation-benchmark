@@ -1,0 +1,890 @@
+% P03 supplementary fragment; keep separate from main preview.
+
+\clearpage
+
+\begingroup
+
+\hypersetup{linkcolor=black}
+
+\renewcommand{\thetable}{A\arabic{table}}
+
+\setcounter{table}{0}
+
+\section*{{Additional analyses: supporting tables}}
+
+{Tables A1--A3 cover persistent stream loss; A4--A9 graph controls; A10--A12 common-$k$ KNN scaling; A13--A24 count/degree strata for $B=144$ and MCAR 30\%; A25--A30 daily sensor-count sums; A31 plain Sage-Voronoi forecasting. Every metric cell gives mean, sample SD and an unadjusted run-level 95\% Student-$t$ CI from five seeds. MAE/RMSE use vehicles per 10-minute interval, except daily sums, which use aggregated sensor counts; MRE is a dimensionless ratio on nonzero targets. Full auxiliary summaries for all completed scenarios are in \texttt{additional\_analyses\_p03.csv}; per-seed training records and rounding differences are supplied separately. No method is omitted from the primary-model comparisons. Low/high count thresholds are per-sensor training quartiles; degree groups use the road graph. Daily sums score affected test days only and can include partial boundary days. Negative CI endpoints, if present, are retained as calculated and do not imply negative errors.}
+
+\begin{table}[htbp]
+\centering
+\caption{{MAE under persistent loss of sensor streams. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A1}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\25\% streams} & \makecell{Jan\\50\% streams} & \makecell{Oct--Dec\\25\% streams} & \makecell{Oct--Dec\\50\% streams} \\
+\midrule
+Linear & \makecell[c]{$114.98\,\pm\,17.12$\\$[93.72,\ 136.23]$} & \makecell[c]{$115.77\,\pm\,3.20$\\$[111.79,\ 119.74]$} & \makecell[c]{$107.72\,\pm\,17.43$\\$[86.07,\ 129.37]$} & \makecell[c]{$111.34\,\pm\,4.14$\\$[106.20,\ 116.48]$} \\
+Median & \makecell[c]{$114.98\,\pm\,17.12$\\$[93.72,\ 136.23]$} & \makecell[c]{$115.77\,\pm\,3.20$\\$[111.79,\ 119.74]$} & \makecell[c]{$107.72\,\pm\,17.43$\\$[86.07,\ 129.37]$} & \makecell[c]{$111.34\,\pm\,4.14$\\$[106.20,\ 116.48]$} \\
+FFill + BFill & \makecell[c]{$114.98\,\pm\,17.12$\\$[93.72,\ 136.23]$} & \makecell[c]{$115.77\,\pm\,3.20$\\$[111.79,\ 119.74]$} & \makecell[c]{$107.72\,\pm\,17.43$\\$[86.07,\ 129.37]$} & \makecell[c]{$111.34\,\pm\,4.14$\\$[106.20,\ 116.48]$} \\
+Rolling mean & \makecell[c]{$114.98\,\pm\,17.12$\\$[93.72,\ 136.23]$} & \makecell[c]{$115.77\,\pm\,3.20$\\$[111.79,\ 119.74]$} & \makecell[c]{$107.72\,\pm\,17.43$\\$[86.07,\ 129.37]$} & \makecell[c]{$111.34\,\pm\,4.14$\\$[106.20,\ 116.48]$} \\
+KNN (scaled) & \makecell[c]{$101.43\,\pm\,41.09$\\$[50.41,\ 152.46]$} & \makecell[c]{$90.03\,\pm\,36.07$\\$[45.25,\ 134.82]$} & \makecell[c]{$37.83\,\pm\,17.57$\\$[16.01,\ 59.65]$} & \makecell[c]{$41.45\,\pm\,3.47$\\$[37.14,\ 45.76]$} \\
+KNN (unscaled) & \makecell[c]{$40.73\,\pm\,17.45$\\$[19.06,\ 62.40]$} & \makecell[c]{$51.45\,\pm\,2.04$\\$[48.92,\ 53.99]$} & \makecell[c]{$41.30\,\pm\,16.31$\\$[21.04,\ 61.56]$} & \makecell[c]{$42.91\,\pm\,2.44$\\$[39.87,\ 45.94]$} \\
+Historical & \makecell[c]{$56.80\,\pm\,18.22$\\$[34.18,\ 79.43]$} & \makecell[c]{$65.17\,\pm\,5.06$\\$[58.88,\ 71.45]$} & \makecell[c]{$57.14\,\pm\,17.00$\\$[36.03,\ 78.25]$} & \makecell[c]{$60.65\,\pm\,3.75$\\$[55.99,\ 65.31]$} \\
+Graph Laplacian & \makecell[c]{$67.03\,\pm\,33.89$\\$[24.95,\ 109.11]$} & \makecell[c]{$78.51\,\pm\,18.38$\\$[55.68,\ 101.34]$} & \makecell[c]{$44.54\,\pm\,21.79$\\$[17.48,\ 71.60]$} & \makecell[c]{$51.53\,\pm\,2.52$\\$[48.40,\ 54.66]$} \\
+Graph Temporal & \makecell[c]{$83.67\,\pm\,36.20$\\$[38.72,\ 128.61]$} & \makecell[c]{$80.69\,\pm\,21.61$\\$[53.85,\ 107.52]$} & \makecell[c]{$46.23\,\pm\,20.41$\\$[20.89,\ 71.56]$} & \makecell[c]{$52.23\,\pm\,2.69$\\$[48.88,\ 55.57]$} \\
+Sage-Voronoi & \makecell[c]{$60.22\,\pm\,29.52$\\$[23.57,\ 96.88]$} & \makecell[c]{$74.12\,\pm\,7.48$\\$[64.83,\ 83.41]$} & \makecell[c]{$48.27\,\pm\,21.91$\\$[21.06,\ 75.48]$} & \makecell[c]{$58.79\,\pm\,6.46$\\$[50.77,\ 66.80]$} \\
+GAIN & \makecell[c]{$37.90\,\pm\,16.02$\\$[18.00,\ 57.80]$} & \makecell[c]{$58.94\,\pm\,3.49$\\$[54.61,\ 63.27]$} & \makecell[c]{$39.57\,\pm\,17.19$\\$[18.23,\ 60.91]$} & \makecell[c]{$69.30\,\pm\,2.84$\\$[65.78,\ 72.82]$} \\
+GRIN & \makecell[c]{$40.24\,\pm\,15.27$\\$[21.28,\ 59.20]$} & \makecell[c]{$51.42\,\pm\,5.08$\\$[45.12,\ 57.72]$} & \makecell[c]{$36.23\,\pm\,16.78$\\$[15.39,\ 57.07]$} & \makecell[c]{$44.14\,\pm\,3.54$\\$[39.74,\ 48.54]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{RMSE under persistent loss of sensor streams. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A2}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\25\% streams} & \makecell{Jan\\50\% streams} & \makecell{Oct--Dec\\25\% streams} & \makecell{Oct--Dec\\50\% streams} \\
+\midrule
+Linear & \makecell[c]{$192.51\,\pm\,27.32$\\$[158.59,\ 226.43]$} & \makecell[c]{$220.44\,\pm\,35.02$\\$[176.96,\ 263.92]$} & \makecell[c]{$191.38\,\pm\,43.45$\\$[137.43,\ 245.34]$} & \makecell[c]{$208.06\,\pm\,11.78$\\$[193.44,\ 222.69]$} \\
+Median & \makecell[c]{$192.51\,\pm\,27.32$\\$[158.59,\ 226.43]$} & \makecell[c]{$220.44\,\pm\,35.02$\\$[176.96,\ 263.92]$} & \makecell[c]{$191.38\,\pm\,43.45$\\$[137.43,\ 245.34]$} & \makecell[c]{$208.06\,\pm\,11.78$\\$[193.44,\ 222.69]$} \\
+FFill + BFill & \makecell[c]{$192.51\,\pm\,27.32$\\$[158.59,\ 226.43]$} & \makecell[c]{$220.44\,\pm\,35.02$\\$[176.96,\ 263.92]$} & \makecell[c]{$191.38\,\pm\,43.45$\\$[137.43,\ 245.34]$} & \makecell[c]{$208.06\,\pm\,11.78$\\$[193.44,\ 222.69]$} \\
+Rolling mean & \makecell[c]{$192.51\,\pm\,27.32$\\$[158.59,\ 226.43]$} & \makecell[c]{$220.44\,\pm\,35.02$\\$[176.96,\ 263.92]$} & \makecell[c]{$191.38\,\pm\,43.45$\\$[137.43,\ 245.34]$} & \makecell[c]{$208.06\,\pm\,11.78$\\$[193.44,\ 222.69]$} \\
+KNN (scaled) & \makecell[c]{$194.01\,\pm\,62.69$\\$[116.18,\ 271.85]$} & \makecell[c]{$221.71\,\pm\,32.26$\\$[181.66,\ 261.76]$} & \makecell[c]{$108.50\,\pm\,64.91$\\$[27.91,\ 189.09]$} & \makecell[c]{$141.00\,\pm\,10.53$\\$[127.93,\ 154.07]$} \\
+KNN (unscaled) & \makecell[c]{$99.29\,\pm\,55.13$\\$[30.84,\ 167.74]$} & \makecell[c]{$187.68\,\pm\,48.36$\\$[127.63,\ 247.73]$} & \makecell[c]{$114.17\,\pm\,63.94$\\$[34.77,\ 193.57]$} & \makecell[c]{$144.55\,\pm\,10.99$\\$[130.90,\ 158.20]$} \\
+Historical & \makecell[c]{$126.63\,\pm\,52.72$\\$[61.17,\ 192.09]$} & \makecell[c]{$198.42\,\pm\,44.64$\\$[142.99,\ 253.84]$} & \makecell[c]{$130.95\,\pm\,48.10$\\$[71.23,\ 190.67]$} & \makecell[c]{$150.03\,\pm\,12.53$\\$[134.47,\ 165.59]$} \\
+Graph Laplacian & \makecell[c]{$152.73\,\pm\,107.43$\\$[19.34,\ 286.12]$} & \makecell[c]{$260.95\,\pm\,44.05$\\$[206.26,\ 315.65]$} & \makecell[c]{$118.44\,\pm\,80.98$\\$[17.89,\ 218.99]$} & \makecell[c]{$172.44\,\pm\,10.38$\\$[159.55,\ 185.33]$} \\
+Graph Temporal & \makecell[c]{$208.31\,\pm\,92.64$\\$[93.28,\ 323.34]$} & \makecell[c]{$278.77\,\pm\,70.13$\\$[191.70,\ 365.85]$} & \makecell[c]{$121.89\,\pm\,74.83$\\$[28.98,\ 214.80]$} & \makecell[c]{$171.18\,\pm\,10.15$\\$[158.57,\ 183.78]$} \\
+Sage-Voronoi & \makecell[c]{$135.77\,\pm\,91.60$\\$[22.03,\ 249.50]$} & \makecell[c]{$230.23\,\pm\,38.12$\\$[182.90,\ 277.56]$} & \makecell[c]{$126.15\,\pm\,79.00$\\$[28.06,\ 224.24]$} & \makecell[c]{$181.16\,\pm\,12.05$\\$[166.19,\ 196.13]$} \\
+GAIN & \makecell[c]{$93.99\,\pm\,53.08$\\$[28.09,\ 159.90]$} & \makecell[c]{$170.54\,\pm\,48.88$\\$[109.85,\ 231.23]$} & \makecell[c]{$110.57\,\pm\,69.27$\\$[24.56,\ 196.59]$} & \makecell[c]{$161.52\,\pm\,5.80$\\$[154.33,\ 168.72]$} \\
+GRIN & \makecell[c]{$103.82\,\pm\,52.37$\\$[38.79,\ 168.85]$} & \makecell[c]{$177.87\,\pm\,43.94$\\$[123.31,\ 232.42]$} & \makecell[c]{$108.96\,\pm\,72.16$\\$[19.36,\ 198.57]$} & \makecell[c]{$147.91\,\pm\,17.83$\\$[125.77,\ 170.05]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{MRE under persistent loss of sensor streams. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A3}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\25\% streams} & \makecell{Jan\\50\% streams} & \makecell{Oct--Dec\\25\% streams} & \makecell{Oct--Dec\\50\% streams} \\
+\midrule
+Linear & \makecell[c]{$2.295\,\pm\,0.119$\\$[2.147,\ 2.443]$} & \makecell[c]{$2.273\,\pm\,0.031$\\$[2.235,\ 2.311]$} & \makecell[c]{$2.403\,\pm\,0.056$\\$[2.334,\ 2.472]$} & \makecell[c]{$2.366\,\pm\,0.074$\\$[2.275,\ 2.458]$} \\
+Median & \makecell[c]{$2.295\,\pm\,0.119$\\$[2.147,\ 2.443]$} & \makecell[c]{$2.273\,\pm\,0.031$\\$[2.235,\ 2.311]$} & \makecell[c]{$2.403\,\pm\,0.056$\\$[2.334,\ 2.472]$} & \makecell[c]{$2.366\,\pm\,0.074$\\$[2.275,\ 2.458]$} \\
+FFill + BFill & \makecell[c]{$2.295\,\pm\,0.119$\\$[2.147,\ 2.443]$} & \makecell[c]{$2.273\,\pm\,0.031$\\$[2.235,\ 2.311]$} & \makecell[c]{$2.403\,\pm\,0.056$\\$[2.334,\ 2.472]$} & \makecell[c]{$2.366\,\pm\,0.074$\\$[2.275,\ 2.458]$} \\
+Rolling mean & \makecell[c]{$2.295\,\pm\,0.119$\\$[2.147,\ 2.443]$} & \makecell[c]{$2.273\,\pm\,0.031$\\$[2.235,\ 2.311]$} & \makecell[c]{$2.403\,\pm\,0.056$\\$[2.334,\ 2.472]$} & \makecell[c]{$2.366\,\pm\,0.074$\\$[2.275,\ 2.458]$} \\
+KNN (scaled) & \makecell[c]{$1.167\,\pm\,0.145$\\$[0.988,\ 1.347]$} & \makecell[c]{$0.969\,\pm\,0.582$\\$[0.246,\ 1.691]$} & \makecell[c]{$0.402\,\pm\,0.112$\\$[0.264,\ 0.541]$} & \makecell[c]{$0.388\,\pm\,0.091$\\$[0.275,\ 0.502]$} \\
+KNN (unscaled) & \makecell[c]{$0.531\,\pm\,0.078$\\$[0.434,\ 0.627]$} & \makecell[c]{$0.635\,\pm\,0.303$\\$[0.259,\ 1.012]$} & \makecell[c]{$0.469\,\pm\,0.101$\\$[0.344,\ 0.594]$} & \makecell[c]{$0.411\,\pm\,0.099$\\$[0.287,\ 0.534]$} \\
+Historical & \makecell[c]{$0.546\,\pm\,0.057$\\$[0.476,\ 0.617]$} & \makecell[c]{$0.563\,\pm\,0.018$\\$[0.541,\ 0.585]$} & \makecell[c]{$0.690\,\pm\,0.118$\\$[0.543,\ 0.836]$} & \makecell[c]{$0.681\,\pm\,0.097$\\$[0.560,\ 0.801]$} \\
+Graph Laplacian & \makecell[c]{$1.038\,\pm\,0.234$\\$[0.747,\ 1.329]$} & \makecell[c]{$0.902\,\pm\,0.401$\\$[0.404,\ 1.399]$} & \makecell[c]{$0.518\,\pm\,0.056$\\$[0.449,\ 0.588]$} & \makecell[c]{$0.513\,\pm\,0.049$\\$[0.452,\ 0.573]$} \\
+Graph Temporal & \makecell[c]{$1.204\,\pm\,0.417$\\$[0.686,\ 1.722]$} & \makecell[c]{$1.061\,\pm\,0.632$\\$[0.276,\ 1.846]$} & \makecell[c]{$0.562\,\pm\,0.082$\\$[0.460,\ 0.663]$} & \makecell[c]{$0.549\,\pm\,0.052$\\$[0.484,\ 0.613]$} \\
+Sage-Voronoi & \makecell[c]{$0.908\,\pm\,0.277$\\$[0.564,\ 1.252]$} & \makecell[c]{$0.882\,\pm\,0.319$\\$[0.486,\ 1.278]$} & \makecell[c]{$0.424\,\pm\,0.052$\\$[0.358,\ 0.489]$} & \makecell[c]{$0.452\,\pm\,0.035$\\$[0.408,\ 0.496]$} \\
+GAIN & \makecell[c]{$0.508\,\pm\,0.088$\\$[0.399,\ 0.617]$} & \makecell[c]{$0.965\,\pm\,0.129$\\$[0.804,\ 1.126]$} & \makecell[c]{$0.443\,\pm\,0.080$\\$[0.343,\ 0.543]$} & \makecell[c]{$1.066\,\pm\,0.098$\\$[0.944,\ 1.188]$} \\
+GRIN & \makecell[c]{$0.514\,\pm\,0.103$\\$[0.386,\ 0.641]$} & \makecell[c]{$0.590\,\pm\,0.103$\\$[0.462,\ 0.719]$} & \makecell[c]{$0.348\,\pm\,0.050$\\$[0.286,\ 0.411]$} & \makecell[c]{$0.459\,\pm\,0.068$\\$[0.374,\ 0.544]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, January 2023, MAE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A4}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$61.16\,\pm\,1.87$\\$[58.83,\ 63.48]$} & \makecell[c]{$72.02\,\pm\,4.78$\\$[66.09,\ 77.96]$} & \makecell[c]{$53.79\,\pm\,0.45$\\$[53.23,\ 54.34]$} \\
+Road, raw counts & \makecell[c]{$141.52\,\pm\,9.21$\\$[130.08,\ 152.96]$} & \makecell[c]{$147.89\,\pm\,4.16$\\$[142.72,\ 153.05]$} & \makecell[c]{$106.69\,\pm\,0.49$\\$[106.08,\ 107.29]$} \\
+No spatial edges & \makecell[c]{$34.77\,\pm\,7.82$\\$[25.06,\ 44.48]$} & \makecell[c]{$133.05\,\pm\,5.42$\\$[126.32,\ 139.79]$} & \makecell[c]{$23.16\,\pm\,0.19$\\$[22.93,\ 23.40]$} \\
+Training correlation & \makecell[c]{$38.89\,\pm\,2.04$\\$[36.36,\ 41.43]$} & \makecell[c]{$42.24\,\pm\,4.19$\\$[37.04,\ 47.44]$} & \makecell[c]{$36.44\,\pm\,0.38$\\$[35.96,\ 36.91]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, January 2023, RMSE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A5}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$182.17\,\pm\,20.91$\\$[156.20,\ 208.14]$} & \makecell[c]{$240.03\,\pm\,26.62$\\$[206.97,\ 273.08]$} & \makecell[c]{$173.76\,\pm\,1.50$\\$[171.90,\ 175.62]$} \\
+Road, raw counts & \makecell[c]{$247.24\,\pm\,31.93$\\$[207.59,\ 286.89]$} & \makecell[c]{$271.82\,\pm\,19.22$\\$[247.96,\ 295.67]$} & \makecell[c]{$203.05\,\pm\,1.56$\\$[201.12,\ 204.99]$} \\
+No spatial edges & \makecell[c]{$117.12\,\pm\,55.76$\\$[47.88,\ 186.36]$} & \makecell[c]{$263.30\,\pm\,20.72$\\$[237.57,\ 289.02]$} & \makecell[c]{$77.64\,\pm\,1.42$\\$[75.87,\ 79.41]$} \\
+Training correlation & \makecell[c]{$127.12\,\pm\,34.78$\\$[83.93,\ 170.30]$} & \makecell[c]{$161.02\,\pm\,35.90$\\$[116.44,\ 205.59]$} & \makecell[c]{$142.71\,\pm\,3.39$\\$[138.49,\ 146.92]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, January 2023, MRE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A6}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$0.879\,\pm\,0.495$\\$[0.265,\ 1.493]$} & \makecell[c]{$1.050\,\pm\,0.158$\\$[0.853,\ 1.247]$} & \makecell[c]{$0.750\,\pm\,0.031$\\$[0.711,\ 0.788]$} \\
+Road, raw counts & \makecell[c]{$6.589\,\pm\,1.182$\\$[5.121,\ 8.057]$} & \makecell[c]{$7.450\,\pm\,0.737$\\$[6.535,\ 8.365]$} & \makecell[c]{$4.953\,\pm\,0.073$\\$[4.863,\ 5.043]$} \\
+No spatial edges & \makecell[c]{$0.374\,\pm\,0.060$\\$[0.300,\ 0.448]$} & \makecell[c]{$2.913\,\pm\,0.286$\\$[2.558,\ 3.268]$} & \makecell[c]{$0.262\,\pm\,0.003$\\$[0.258,\ 0.266]$} \\
+Training correlation & \makecell[c]{$0.582\,\pm\,0.256$\\$[0.265,\ 0.900]$} & \makecell[c]{$0.597\,\pm\,0.064$\\$[0.517,\ 0.676]$} & \makecell[c]{$0.525\,\pm\,0.014$\\$[0.508,\ 0.543]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, October--December 2022, MAE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A7}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$48.14\,\pm\,5.03$\\$[41.90,\ 54.38]$} & \makecell[c]{$44.67\,\pm\,3.18$\\$[40.72,\ 48.62]$} & \makecell[c]{$35.37\,\pm\,0.16$\\$[35.17,\ 35.57]$} \\
+Road, raw counts & \makecell[c]{$130.75\,\pm\,8.45$\\$[120.26,\ 141.24]$} & \makecell[c]{$133.32\,\pm\,6.49$\\$[125.26,\ 141.38]$} & \makecell[c]{$97.55\,\pm\,0.16$\\$[97.35,\ 97.76]$} \\
+No spatial edges & \makecell[c]{$29.12\,\pm\,2.21$\\$[26.38,\ 31.86]$} & \makecell[c]{$115.76\,\pm\,6.37$\\$[107.85,\ 123.68]$} & \makecell[c]{$20.58\,\pm\,0.14$\\$[20.41,\ 20.75]$} \\
+Training correlation & \makecell[c]{$41.82\,\pm\,4.61$\\$[36.09,\ 47.54]$} & \makecell[c]{$38.54\,\pm\,4.57$\\$[32.87,\ 44.21]$} & \makecell[c]{$30.75\,\pm\,0.22$\\$[30.48,\ 31.02]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, October--December 2022, RMSE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A8}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$177.38\,\pm\,55.64$\\$[108.29,\ 246.47]$} & \makecell[c]{$133.66\,\pm\,21.55$\\$[106.90,\ 160.42]$} & \makecell[c]{$104.23\,\pm\,1.62$\\$[102.22,\ 106.23]$} \\
+Road, raw counts & \makecell[c]{$261.77\,\pm\,39.41$\\$[212.83,\ 310.71]$} & \makecell[c]{$242.93\,\pm\,21.96$\\$[215.66,\ 270.19]$} & \makecell[c]{$182.93\,\pm\,1.26$\\$[181.36,\ 184.50]$} \\
+No spatial edges & \makecell[c]{$86.28\,\pm\,17.56$\\$[64.48,\ 108.07]$} & \makecell[c]{$208.23\,\pm\,21.84$\\$[181.11,\ 235.36]$} & \makecell[c]{$60.51\,\pm\,1.16$\\$[59.06,\ 61.95]$} \\
+Training correlation & \makecell[c]{$155.65\,\pm\,49.06$\\$[94.73,\ 216.57]$} & \makecell[c]{$124.18\,\pm\,27.44$\\$[90.11,\ 158.25]$} & \makecell[c]{$84.63\,\pm\,1.81$\\$[82.38,\ 86.88]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Graph Temporal sensitivity controls, October--December 2022, MRE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A9}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=16$ & $B=144$ & MCAR 30\% \\
+\midrule
+Road, standardized & \makecell[c]{$0.552\,\pm\,0.189$\\$[0.317,\ 0.787]$} & \makecell[c]{$0.620\,\pm\,0.089$\\$[0.509,\ 0.731]$} & \makecell[c]{$0.457\,\pm\,0.003$\\$[0.454,\ 0.461]$} \\
+Road, raw counts & \makecell[c]{$4.886\,\pm\,0.677$\\$[4.044,\ 5.727]$} & \makecell[c]{$6.021\,\pm\,0.319$\\$[5.625,\ 6.417]$} & \makecell[c]{$4.240\,\pm\,0.048$\\$[4.180,\ 4.300]$} \\
+No spatial edges & \makecell[c]{$0.371\,\pm\,0.052$\\$[0.306,\ 0.436]$} & \makecell[c]{$2.537\,\pm\,0.109$\\$[2.402,\ 2.673]$} & \makecell[c]{$0.251\,\pm\,0.001$\\$[0.249,\ 0.252]$} \\
+Training correlation & \makecell[c]{$0.752\,\pm\,0.730$\\$[-0.154,\ 1.658]$} & \makecell[c]{$0.585\,\pm\,0.246$\\$[0.280,\ 0.890]$} & \makecell[c]{$0.414\,\pm\,0.005$\\$[0.407,\ 0.421]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{KNN scaling control at common $k=10$, MAE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A10}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\$B=144$} & \makecell{Jan\\MCAR 30\%} & \makecell{Oct--Dec\\$B=144$} & \makecell{Oct--Dec\\MCAR 30\%} \\
+\midrule
+KNN, standardized & \makecell[c]{$113.60\,\pm\,5.43$\\$[106.85,\ 120.34]$} & \makecell[c]{$104.12\,\pm\,1.46$\\$[102.30,\ 105.93]$} & \makecell[c]{$35.87\,\pm\,1.81$\\$[33.63,\ 38.11]$} & \makecell[c]{$36.78\,\pm\,0.19$\\$[36.55,\ 37.02]$} \\
+KNN, unscaled & \makecell[c]{$41.52\,\pm\,3.35$\\$[37.37,\ 45.68]$} & \makecell[c]{$41.89\,\pm\,0.22$\\$[41.61,\ 42.16]$} & \makecell[c]{$38.87\,\pm\,1.84$\\$[36.58,\ 41.15]$} & \makecell[c]{$39.13\,\pm\,0.12$\\$[38.98,\ 39.29]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{KNN scaling control at common $k=10$, RMSE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A11}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\$B=144$} & \makecell{Jan\\MCAR 30\%} & \makecell{Oct--Dec\\$B=144$} & \makecell{Oct--Dec\\MCAR 30\%} \\
+\midrule
+KNN, standardized & \makecell[c]{$237.08\,\pm\,24.33$\\$[206.87,\ 267.29]$} & \makecell[c]{$227.19\,\pm\,1.50$\\$[225.33,\ 229.06]$} & \makecell[c]{$112.74\,\pm\,6.58$\\$[104.57,\ 120.92]$} & \makecell[c]{$123.63\,\pm\,1.28$\\$[122.05,\ 125.22]$} \\
+KNN, unscaled & \makecell[c]{$162.90\,\pm\,31.08$\\$[124.31,\ 201.49]$} & \makecell[c]{$169.71\,\pm\,2.82$\\$[166.21,\ 173.22]$} & \makecell[c]{$114.80\,\pm\,6.69$\\$[106.50,\ 123.11]$} & \makecell[c]{$125.07\,\pm\,1.30$\\$[123.46,\ 126.69]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{KNN scaling control at common $k=10$, MRE. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A12}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & \makecell{Jan\\$B=144$} & \makecell{Jan\\MCAR 30\%} & \makecell{Oct--Dec\\$B=144$} & \makecell{Oct--Dec\\MCAR 30\%} \\
+\midrule
+KNN, standardized & \makecell[c]{$1.051\,\pm\,0.068$\\$[0.966,\ 1.136]$} & \makecell[c]{$1.045\,\pm\,0.024$\\$[1.015,\ 1.074]$} & \makecell[c]{$0.491\,\pm\,0.125$\\$[0.335,\ 0.646]$} & \makecell[c]{$0.457\,\pm\,0.008$\\$[0.447,\ 0.467]$} \\
+KNN, unscaled & \makecell[c]{$0.448\,\pm\,0.034$\\$[0.406,\ 0.491]$} & \makecell[c]{$0.451\,\pm\,0.012$\\$[0.437,\ 0.466]$} & \makecell[c]{$0.582\,\pm\,0.141$\\$[0.407,\ 0.757]$} & \makecell[c]{$0.512\,\pm\,0.009$\\$[0.500,\ 0.524]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, $B=144$, MAE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A13}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$129.15\,\pm\,12.72$\\$[113.36,\ 144.94]$} & \makecell[c]{$134.22\,\pm\,13.09$\\$[117.97,\ 150.47]$} & \makecell[c]{$87.87\,\pm\,10.17$\\$[75.24,\ 100.51]$} & \makecell[c]{$162.12\,\pm\,5.22$\\$[155.64,\ 168.61]$} \\
+Median & \makecell[c]{$108.45\,\pm\,2.55$\\$[105.29,\ 111.62]$} & \makecell[c]{$154.48\,\pm\,10.02$\\$[142.04,\ 166.92]$} & \makecell[c]{$75.89\,\pm\,2.79$\\$[72.42,\ 79.35]$} & \makecell[c]{$136.81\,\pm\,6.77$\\$[128.40,\ 145.21]$} \\
+FFill + BFill & \makecell[c]{$128.71\,\pm\,11.64$\\$[114.26,\ 143.17]$} & \makecell[c]{$144.35\,\pm\,10.77$\\$[130.98,\ 157.73]$} & \makecell[c]{$88.10\,\pm\,8.27$\\$[77.84,\ 98.37]$} & \makecell[c]{$173.53\,\pm\,10.92$\\$[159.98,\ 187.08]$} \\
+Rolling mean & \makecell[c]{$129.13\,\pm\,12.61$\\$[113.47,\ 144.78]$} & \makecell[c]{$134.33\,\pm\,13.03$\\$[118.15,\ 150.52]$} & \makecell[c]{$87.71\,\pm\,10.25$\\$[74.99,\ 100.44]$} & \makecell[c]{$162.42\,\pm\,5.31$\\$[155.82,\ 169.01]$} \\
+KNN (scaled) & \makecell[c]{$39.93\,\pm\,3.90$\\$[35.09,\ 44.77]$} & \makecell[c]{$189.84\,\pm\,11.67$\\$[175.36,\ 204.33]$} & \makecell[c]{$74.00\,\pm\,4.83$\\$[68.01,\ 80.00]$} & \makecell[c]{$137.19\,\pm\,7.11$\\$[128.36,\ 146.02]$} \\
+KNN (unscaled) & \makecell[c]{$28.31\,\pm\,3.85$\\$[23.53,\ 33.09]$} & \makecell[c]{$52.90\,\pm\,8.39$\\$[42.48,\ 63.32]$} & \makecell[c]{$33.89\,\pm\,3.01$\\$[30.16,\ 37.63]$} & \makecell[c]{$47.95\,\pm\,5.44$\\$[41.19,\ 54.72]$} \\
+Historical & \makecell[c]{$33.57\,\pm\,3.67$\\$[29.01,\ 38.12]$} & \makecell[c]{$83.06\,\pm\,9.86$\\$[70.82,\ 95.31]$} & \makecell[c]{$45.56\,\pm\,2.76$\\$[42.13,\ 48.99]$} & \makecell[c]{$67.43\,\pm\,6.11$\\$[59.84,\ 75.02]$} \\
+Graph Laplacian & \makecell[c]{$54.09\,\pm\,3.01$\\$[50.35,\ 57.83]$} & \makecell[c]{$66.93\,\pm\,9.68$\\$[54.91,\ 78.95]$} & \makecell[c]{$64.72\,\pm\,5.57$\\$[57.81,\ 71.63]$} & \makecell[c]{$67.45\,\pm\,5.30$\\$[60.87,\ 74.04]$} \\
+Graph Temporal & \makecell[c]{$59.63\,\pm\,6.45$\\$[51.61,\ 67.64]$} & \makecell[c]{$77.39\,\pm\,8.52$\\$[66.81,\ 87.98]$} & \makecell[c]{$64.13\,\pm\,3.85$\\$[59.35,\ 68.91]$} & \makecell[c]{$76.73\,\pm\,5.54$\\$[69.85,\ 83.60]$} \\
+Sage-Voronoi & \makecell[c]{$48.83\,\pm\,7.43$\\$[39.61,\ 58.06]$} & \makecell[c]{$58.60\,\pm\,8.71$\\$[47.79,\ 69.41]$} & \makecell[c]{$55.63\,\pm\,4.35$\\$[50.23,\ 61.04]$} & \makecell[c]{$62.91\,\pm\,3.86$\\$[58.12,\ 67.70]$} \\
+GAIN & \makecell[c]{$18.12\,\pm\,1.66$\\$[16.07,\ 20.18]$} & \makecell[c]{$58.97\,\pm\,10.74$\\$[45.64,\ 72.31]$} & \makecell[c]{$29.65\,\pm\,2.64$\\$[26.36,\ 32.93]$} & \makecell[c]{$46.72\,\pm\,6.49$\\$[38.66,\ 54.79]$} \\
+GRIN & \makecell[c]{$22.89\,\pm\,2.68$\\$[19.57,\ 26.22]$} & \makecell[c]{$56.50\,\pm\,9.24$\\$[45.03,\ 67.96]$} & \makecell[c]{$29.01\,\pm\,2.10$\\$[26.40,\ 31.62]$} & \makecell[c]{$46.99\,\pm\,6.66$\\$[38.71,\ 55.26]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, $B=144$, RMSE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A14}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$249.86\,\pm\,31.56$\\$[210.67,\ 289.04]$} & \makecell[c]{$299.75\,\pm\,35.86$\\$[255.22,\ 344.28]$} & \makecell[c]{$197.58\,\pm\,57.78$\\$[125.84,\ 269.32]$} & \makecell[c]{$297.74\,\pm\,22.91$\\$[269.30,\ 326.18]$} \\
+Median & \makecell[c]{$167.53\,\pm\,7.38$\\$[158.37,\ 176.70]$} & \makecell[c]{$301.48\,\pm\,42.66$\\$[248.52,\ 354.45]$} & \makecell[c]{$164.78\,\pm\,17.99$\\$[142.45,\ 187.11]$} & \makecell[c]{$244.87\,\pm\,36.05$\\$[200.10,\ 289.63]$} \\
+FFill + BFill & \makecell[c]{$254.95\,\pm\,38.45$\\$[207.22,\ 302.69]$} & \makecell[c]{$333.95\,\pm\,51.05$\\$[270.55,\ 397.34]$} & \makecell[c]{$193.82\,\pm\,45.53$\\$[137.29,\ 250.36]$} & \makecell[c]{$342.28\,\pm\,52.07$\\$[277.62,\ 406.93]$} \\
+Rolling mean & \makecell[c]{$249.84\,\pm\,31.53$\\$[210.70,\ 288.99]$} & \makecell[c]{$300.43\,\pm\,35.98$\\$[255.76,\ 345.10]$} & \makecell[c]{$197.03\,\pm\,57.72$\\$[125.35,\ 268.70]$} & \makecell[c]{$298.69\,\pm\,23.53$\\$[269.47,\ 327.91]$} \\
+KNN (scaled) & \makecell[c]{$99.08\,\pm\,11.03$\\$[85.39,\ 112.77]$} & \makecell[c]{$345.68\,\pm\,36.60$\\$[300.23,\ 391.12]$} & \makecell[c]{$174.19\,\pm\,21.57$\\$[147.41,\ 200.98]$} & \makecell[c]{$266.91\,\pm\,33.74$\\$[225.03,\ 308.80]$} \\
+KNN (unscaled) & \makecell[c]{$112.27\,\pm\,21.52$\\$[85.55,\ 138.98]$} & \makecell[c]{$223.36\,\pm\,53.90$\\$[156.44,\ 290.28]$} & \makecell[c]{$131.53\,\pm\,18.77$\\$[108.23,\ 154.84]$} & \makecell[c]{$178.47\,\pm\,46.19$\\$[121.12,\ 235.82]$} \\
+Historical & \makecell[c]{$127.16\,\pm\,13.92$\\$[109.88,\ 144.44]$} & \makecell[c]{$242.32\,\pm\,52.00$\\$[177.75,\ 306.88]$} & \makecell[c]{$158.46\,\pm\,17.73$\\$[136.45,\ 180.48]$} & \makecell[c]{$189.71\,\pm\,45.65$\\$[133.03,\ 246.39]$} \\
+Graph Laplacian & \makecell[c]{$189.36\,\pm\,17.88$\\$[167.16,\ 211.57]$} & \makecell[c]{$233.80\,\pm\,54.26$\\$[166.43,\ 301.17]$} & \makecell[c]{$252.93\,\pm\,40.08$\\$[203.16,\ 302.70]$} & \makecell[c]{$191.85\,\pm\,41.59$\\$[140.21,\ 243.49]$} \\
+Graph Temporal & \makecell[c]{$212.06\,\pm\,22.79$\\$[183.76,\ 240.35]$} & \makecell[c]{$264.79\,\pm\,45.74$\\$[208.00,\ 321.59]$} & \makecell[c]{$254.63\,\pm\,20.27$\\$[229.47,\ 279.80]$} & \makecell[c]{$229.84\,\pm\,38.58$\\$[181.94,\ 277.74]$} \\
+Sage-Voronoi & \makecell[c]{$165.69\,\pm\,15.07$\\$[146.97,\ 184.41]$} & \makecell[c]{$223.55\,\pm\,55.30$\\$[154.89,\ 292.21]$} & \makecell[c]{$215.71\,\pm\,32.91$\\$[174.85,\ 256.57]$} & \makecell[c]{$188.25\,\pm\,36.72$\\$[142.65,\ 233.85]$} \\
+GAIN & \makecell[c]{$62.39\,\pm\,10.33$\\$[49.56,\ 75.22]$} & \makecell[c]{$239.55\,\pm\,55.44$\\$[170.71,\ 308.39]$} & \makecell[c]{$125.00\,\pm\,21.02$\\$[98.90,\ 151.10]$} & \makecell[c]{$179.85\,\pm\,46.47$\\$[122.14,\ 237.55]$} \\
+GRIN & \makecell[c]{$80.64\,\pm\,15.56$\\$[61.32,\ 99.96]$} & \makecell[c]{$232.63\,\pm\,54.66$\\$[164.75,\ 300.50]$} & \makecell[c]{$117.38\,\pm\,17.03$\\$[96.24,\ 138.52]$} & \makecell[c]{$180.09\,\pm\,47.77$\\$[120.79,\ 239.40]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, $B=144$, MRE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A15}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$10.958\,\pm\,1.427$\\$[9.186,\ 12.731]$} & \makecell[c]{$0.512\,\pm\,0.034$\\$[0.469,\ 0.554]$} & \makecell[c]{$3.224\,\pm\,0.447$\\$[2.668,\ 3.779]$} & \makecell[c]{$2.774\,\pm\,0.251$\\$[2.462,\ 3.085]$} \\
+Median & \makecell[c]{$8.649\,\pm\,0.343$\\$[8.223,\ 9.076]$} & \makecell[c]{$0.567\,\pm\,0.005$\\$[0.561,\ 0.574]$} & \makecell[c]{$2.431\,\pm\,0.079$\\$[2.333,\ 2.530]$} & \makecell[c]{$2.178\,\pm\,0.071$\\$[2.090,\ 2.267]$} \\
+FFill + BFill & \makecell[c]{$10.669\,\pm\,1.203$\\$[9.176,\ 12.163]$} & \makecell[c]{$0.551\,\pm\,0.046$\\$[0.493,\ 0.608]$} & \makecell[c]{$3.182\,\pm\,0.383$\\$[2.706,\ 3.658]$} & \makecell[c]{$2.769\,\pm\,0.185$\\$[2.539,\ 2.999]$} \\
+Rolling mean & \makecell[c]{$10.952\,\pm\,1.424$\\$[9.184,\ 12.720]$} & \makecell[c]{$0.512\,\pm\,0.034$\\$[0.470,\ 0.554]$} & \makecell[c]{$3.221\,\pm\,0.446$\\$[2.666,\ 3.775]$} & \makecell[c]{$2.774\,\pm\,0.249$\\$[2.464,\ 3.084]$} \\
+KNN (scaled) & \makecell[c]{$2.891\,\pm\,0.302$\\$[2.516,\ 3.265]$} & \makecell[c]{$0.660\,\pm\,0.013$\\$[0.644,\ 0.676]$} & \makecell[c]{$1.164\,\pm\,0.078$\\$[1.067,\ 1.262]$} & \makecell[c]{$0.987\,\pm\,0.068$\\$[0.902,\ 1.071]$} \\
+KNN (unscaled) & \makecell[c]{$1.187\,\pm\,0.173$\\$[0.972,\ 1.402]$} & \makecell[c]{$0.216\,\pm\,0.005$\\$[0.211,\ 0.222]$} & \makecell[c]{$0.602\,\pm\,0.086$\\$[0.495,\ 0.709]$} & \makecell[c]{$0.376\,\pm\,0.020$\\$[0.351,\ 0.402]$} \\
+Historical & \makecell[c]{$1.452\,\pm\,0.092$\\$[1.338,\ 1.567]$} & \makecell[c]{$0.288\,\pm\,0.005$\\$[0.282,\ 0.293]$} & \makecell[c]{$0.672\,\pm\,0.048$\\$[0.613,\ 0.732]$} & \makecell[c]{$0.484\,\pm\,0.021$\\$[0.459,\ 0.510]$} \\
+Graph Laplacian & \makecell[c]{$2.874\,\pm\,0.292$\\$[2.511,\ 3.237]$} & \makecell[c]{$0.258\,\pm\,0.008$\\$[0.249,\ 0.268]$} & \makecell[c]{$1.265\,\pm\,0.132$\\$[1.101,\ 1.430]$} & \makecell[c]{$0.695\,\pm\,0.027$\\$[0.661,\ 0.728]$} \\
+Graph Temporal & \makecell[c]{$3.406\,\pm\,0.608$\\$[2.651,\ 4.160]$} & \makecell[c]{$0.313\,\pm\,0.009$\\$[0.302,\ 0.325]$} & \makecell[c]{$1.661\,\pm\,0.336$\\$[1.244,\ 2.078]$} & \makecell[c]{$0.706\,\pm\,0.066$\\$[0.624,\ 0.789]$} \\
+Sage-Voronoi & \makecell[c]{$2.420\,\pm\,0.587$\\$[1.691,\ 3.148]$} & \makecell[c]{$0.232\,\pm\,0.020$\\$[0.207,\ 0.256]$} & \makecell[c]{$1.053\,\pm\,0.178$\\$[0.833,\ 1.274]$} & \makecell[c]{$0.651\,\pm\,0.118$\\$[0.505,\ 0.797]$} \\
+GAIN & \makecell[c]{$0.844\,\pm\,0.170$\\$[0.633,\ 1.055]$} & \makecell[c]{$0.218\,\pm\,0.008$\\$[0.208,\ 0.227]$} & \makecell[c]{$0.470\,\pm\,0.076$\\$[0.375,\ 0.565]$} & \makecell[c]{$0.293\,\pm\,0.025$\\$[0.262,\ 0.324]$} \\
+GRIN & \makecell[c]{$1.219\,\pm\,0.133$\\$[1.053,\ 1.384]$} & \makecell[c]{$0.217\,\pm\,0.014$\\$[0.200,\ 0.235]$} & \makecell[c]{$0.624\,\pm\,0.071$\\$[0.537,\ 0.712]$} & \makecell[c]{$0.337\,\pm\,0.031$\\$[0.298,\ 0.376]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, MCAR 30\%, MAE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A16}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$9.19\,\pm\,0.28$\\$[8.85,\ 9.54]$} & \makecell[c]{$31.67\,\pm\,0.42$\\$[31.15,\ 32.19]$} & \makecell[c]{$17.40\,\pm\,0.36$\\$[16.94,\ 17.85]$} & \makecell[c]{$27.07\,\pm\,0.16$\\$[26.88,\ 27.27]$} \\
+Median & \makecell[c]{$109.30\,\pm\,1.35$\\$[107.62,\ 110.97]$} & \makecell[c]{$150.21\,\pm\,0.65$\\$[149.40,\ 151.02]$} & \makecell[c]{$72.42\,\pm\,0.37$\\$[71.96,\ 72.87]$} & \makecell[c]{$135.85\,\pm\,0.97$\\$[134.65,\ 137.06]$} \\
+FFill + BFill & \makecell[c]{$11.46\,\pm\,0.55$\\$[10.77,\ 12.15]$} & \makecell[c]{$39.06\,\pm\,0.84$\\$[38.01,\ 40.11]$} & \makecell[c]{$21.86\,\pm\,0.43$\\$[21.33,\ 22.39]$} & \makecell[c]{$34.51\,\pm\,0.34$\\$[34.09,\ 34.93]$} \\
+Rolling mean & \makecell[c]{$12.51\,\pm\,0.40$\\$[12.01,\ 13.01]$} & \makecell[c]{$38.77\,\pm\,0.59$\\$[38.03,\ 39.50]$} & \makecell[c]{$22.13\,\pm\,0.50$\\$[21.51,\ 22.75]$} & \makecell[c]{$36.04\,\pm\,0.21$\\$[35.78,\ 36.29]$} \\
+KNN (scaled) & \makecell[c]{$43.70\,\pm\,1.26$\\$[42.13,\ 45.26]$} & \makecell[c]{$166.96\,\pm\,2.70$\\$[163.62,\ 170.31]$} & \makecell[c]{$67.10\,\pm\,0.96$\\$[65.91,\ 68.29]$} & \makecell[c]{$126.25\,\pm\,2.09$\\$[123.65,\ 128.85]$} \\
+KNN (unscaled) & \makecell[c]{$30.87\,\pm\,1.09$\\$[29.51,\ 32.23]$} & \makecell[c]{$51.44\,\pm\,0.75$\\$[50.51,\ 52.38]$} & \makecell[c]{$33.39\,\pm\,0.78$\\$[32.42,\ 34.36]$} & \makecell[c]{$48.95\,\pm\,0.46$\\$[48.38,\ 49.52]$} \\
+Historical & \makecell[c]{$35.37\,\pm\,1.03$\\$[34.09,\ 36.65]$} & \makecell[c]{$80.61\,\pm\,0.51$\\$[79.97,\ 81.25]$} & \makecell[c]{$44.53\,\pm\,0.84$\\$[43.49,\ 45.58]$} & \makecell[c]{$68.21\,\pm\,0.58$\\$[67.49,\ 68.92]$} \\
+Graph Laplacian & \makecell[c]{$52.49\,\pm\,1.75$\\$[50.31,\ 54.66]$} & \makecell[c]{$65.34\,\pm\,1.05$\\$[64.03,\ 66.64]$} & \makecell[c]{$63.00\,\pm\,0.66$\\$[62.17,\ 63.82]$} & \makecell[c]{$68.46\,\pm\,0.61$\\$[67.71,\ 69.22]$} \\
+Graph Temporal & \makecell[c]{$42.49\,\pm\,1.01$\\$[41.24,\ 43.75]$} & \makecell[c]{$58.77\,\pm\,1.32$\\$[57.13,\ 60.41]$} & \makecell[c]{$39.67\,\pm\,0.71$\\$[38.79,\ 40.56]$} & \makecell[c]{$62.23\,\pm\,0.90$\\$[61.11,\ 63.34]$} \\
+Sage-Voronoi & \makecell[c]{$15.23\,\pm\,0.95$\\$[14.05,\ 16.42]$} & \makecell[c]{$38.64\,\pm\,1.18$\\$[37.17,\ 40.11]$} & \makecell[c]{$25.07\,\pm\,1.13$\\$[23.68,\ 26.47]$} & \makecell[c]{$34.67\,\pm\,0.59$\\$[33.93,\ 35.40]$} \\
+GAIN & \makecell[c]{$27.79\,\pm\,1.39$\\$[26.07,\ 29.52]$} & \makecell[c]{$56.98\,\pm\,1.40$\\$[55.23,\ 58.72]$} & \makecell[c]{$29.14\,\pm\,0.91$\\$[28.01,\ 30.27]$} & \makecell[c]{$50.78\,\pm\,1.11$\\$[49.39,\ 52.16]$} \\
+GRIN & \makecell[c]{$9.21\,\pm\,0.51$\\$[8.58,\ 9.85]$} & \makecell[c]{$35.68\,\pm\,1.10$\\$[34.31,\ 37.05]$} & \makecell[c]{$15.98\,\pm\,0.46$\\$[15.41,\ 16.54]$} & \makecell[c]{$28.49\,\pm\,0.48$\\$[27.89,\ 29.08]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, MCAR 30\%, RMSE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A17}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$38.99\,\pm\,2.07$\\$[36.43,\ 41.56]$} & \makecell[c]{$107.26\,\pm\,1.94$\\$[104.85,\ 109.68]$} & \makecell[c]{$69.40\,\pm\,3.34$\\$[65.25,\ 73.54]$} & \makecell[c]{$82.68\,\pm\,0.59$\\$[81.95,\ 83.41]$} \\
+Median & \makecell[c]{$171.10\,\pm\,2.49$\\$[168.01,\ 174.20]$} & \makecell[c]{$298.90\,\pm\,3.56$\\$[294.48,\ 303.32]$} & \makecell[c]{$145.43\,\pm\,3.96$\\$[140.52,\ 150.35]$} & \makecell[c]{$250.39\,\pm\,2.72$\\$[247.02,\ 253.77]$} \\
+FFill + BFill & \makecell[c]{$56.98\,\pm\,4.08$\\$[51.92,\ 62.04]$} & \makecell[c]{$133.74\,\pm\,6.35$\\$[125.86,\ 141.62]$} & \makecell[c]{$89.43\,\pm\,4.27$\\$[84.13,\ 94.73]$} & \makecell[c]{$107.34\,\pm\,4.47$\\$[101.79,\ 112.89]$} \\
+Rolling mean & \makecell[c]{$59.62\,\pm\,3.18$\\$[55.67,\ 63.57]$} & \makecell[c]{$135.08\,\pm\,5.60$\\$[128.13,\ 142.03]$} & \makecell[c]{$88.82\,\pm\,6.35$\\$[80.93,\ 96.70]$} & \makecell[c]{$109.88\,\pm\,2.71$\\$[106.52,\ 113.24]$} \\
+KNN (scaled) & \makecell[c]{$112.19\,\pm\,2.57$\\$[109.00,\ 115.39]$} & \makecell[c]{$327.87\,\pm\,2.83$\\$[324.36,\ 331.39]$} & \makecell[c]{$155.48\,\pm\,3.48$\\$[151.16,\ 159.81]$} & \makecell[c]{$260.79\,\pm\,3.17$\\$[256.86,\ 264.73]$} \\
+KNN (unscaled) & \makecell[c]{$123.26\,\pm\,3.50$\\$[118.91,\ 127.61]$} & \makecell[c]{$233.18\,\pm\,5.58$\\$[226.25,\ 240.11]$} & \makecell[c]{$129.22\,\pm\,5.19$\\$[122.76,\ 135.67]$} & \makecell[c]{$191.52\,\pm\,3.70$\\$[186.92,\ 196.12]$} \\
+Historical & \makecell[c]{$135.18\,\pm\,4.40$\\$[129.71,\ 140.64]$} & \makecell[c]{$248.44\,\pm\,4.93$\\$[242.32,\ 254.56]$} & \makecell[c]{$151.15\,\pm\,5.58$\\$[144.22,\ 158.08]$} & \makecell[c]{$202.19\,\pm\,3.58$\\$[197.76,\ 206.63]$} \\
+Graph Laplacian & \makecell[c]{$177.73\,\pm\,8.62$\\$[167.02,\ 188.43]$} & \makecell[c]{$241.53\,\pm\,4.99$\\$[235.34,\ 247.72]$} & \makecell[c]{$250.30\,\pm\,3.62$\\$[245.81,\ 254.79]$} & \makecell[c]{$204.18\,\pm\,3.62$\\$[199.69,\ 208.67]$} \\
+Graph Temporal & \makecell[c]{$137.88\,\pm\,3.25$\\$[133.85,\ 141.91]$} & \makecell[c]{$210.72\,\pm\,4.29$\\$[205.39,\ 216.05]$} & \makecell[c]{$142.61\,\pm\,4.21$\\$[137.38,\ 147.83]$} & \makecell[c]{$189.93\,\pm\,3.26$\\$[185.88,\ 193.98]$} \\
+Sage-Voronoi & \makecell[c]{$60.31\,\pm\,5.24$\\$[53.81,\ 66.82]$} & \makecell[c]{$157.20\,\pm\,14.03$\\$[139.77,\ 174.62]$} & \makecell[c]{$96.36\,\pm\,5.04$\\$[90.10,\ 102.62]$} & \makecell[c]{$125.27\,\pm\,9.83$\\$[113.07,\ 137.48]$} \\
+GAIN & \makecell[c]{$82.17\,\pm\,3.76$\\$[77.51,\ 86.84]$} & \makecell[c]{$238.49\,\pm\,5.62$\\$[231.51,\ 245.47]$} & \makecell[c]{$101.60\,\pm\,4.55$\\$[95.95,\ 107.26]$} & \makecell[c]{$190.63\,\pm\,4.21$\\$[185.41,\ 195.85]$} \\
+GRIN & \makecell[c]{$32.39\,\pm\,4.67$\\$[26.59,\ 38.20]$} & \makecell[c]{$160.30\,\pm\,12.17$\\$[145.18,\ 175.41]$} & \makecell[c]{$66.49\,\pm\,3.98$\\$[61.55,\ 71.43]$} & \makecell[c]{$124.34\,\pm\,8.79$\\$[113.43,\ 135.25]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, MCAR 30\%, MRE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A18}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$0.552\,\pm\,0.009$\\$[0.541,\ 0.562]$} & \makecell[c]{$0.178\,\pm\,0.002$\\$[0.175,\ 0.181]$} & \makecell[c]{$0.308\,\pm\,0.004$\\$[0.303,\ 0.313]$} & \makecell[c]{$0.242\,\pm\,0.005$\\$[0.235,\ 0.248]$} \\
+Median & \makecell[c]{$8.810\,\pm\,0.107$\\$[8.677,\ 8.943]$} & \makecell[c]{$0.563\,\pm\,0.001$\\$[0.562,\ 0.565]$} & \makecell[c]{$2.341\,\pm\,0.045$\\$[2.286,\ 2.397]$} & \makecell[c]{$2.228\,\pm\,0.016$\\$[2.207,\ 2.248]$} \\
+FFill + BFill & \makecell[c]{$0.647\,\pm\,0.017$\\$[0.626,\ 0.668]$} & \makecell[c]{$0.213\,\pm\,0.004$\\$[0.209,\ 0.217]$} & \makecell[c]{$0.362\,\pm\,0.003$\\$[0.357,\ 0.366]$} & \makecell[c]{$0.294\,\pm\,0.007$\\$[0.285,\ 0.303]$} \\
+Rolling mean & \makecell[c]{$0.655\,\pm\,0.013$\\$[0.638,\ 0.671]$} & \makecell[c]{$0.194\,\pm\,0.002$\\$[0.191,\ 0.197]$} & \makecell[c]{$0.343\,\pm\,0.002$\\$[0.340,\ 0.346]$} & \makecell[c]{$0.301\,\pm\,0.006$\\$[0.293,\ 0.308]$} \\
+KNN (scaled) & \makecell[c]{$3.049\,\pm\,0.088$\\$[2.940,\ 3.158]$} & \makecell[c]{$0.596\,\pm\,0.008$\\$[0.586,\ 0.606]$} & \makecell[c]{$1.137\,\pm\,0.036$\\$[1.091,\ 1.182]$} & \makecell[c]{$0.993\,\pm\,0.020$\\$[0.967,\ 1.018]$} \\
+KNN (unscaled) & \makecell[c]{$1.251\,\pm\,0.064$\\$[1.172,\ 1.330]$} & \makecell[c]{$0.211\,\pm\,0.002$\\$[0.208,\ 0.214]$} & \makecell[c]{$0.583\,\pm\,0.023$\\$[0.554,\ 0.612]$} & \makecell[c]{$0.404\,\pm\,0.012$\\$[0.390,\ 0.419]$} \\
+Historical & \makecell[c]{$1.414\,\pm\,0.025$\\$[1.383,\ 1.445]$} & \makecell[c]{$0.284\,\pm\,0.001$\\$[0.283,\ 0.285]$} & \makecell[c]{$0.625\,\pm\,0.011$\\$[0.611,\ 0.639]$} & \makecell[c]{$0.490\,\pm\,0.005$\\$[0.484,\ 0.496]$} \\
+Graph Laplacian & \makecell[c]{$2.813\,\pm\,0.081$\\$[2.712,\ 2.914]$} & \makecell[c]{$0.256\,\pm\,0.000$\\$[0.255,\ 0.256]$} & \makecell[c]{$1.181\,\pm\,0.045$\\$[1.126,\ 1.237]$} & \makecell[c]{$0.717\,\pm\,0.007$\\$[0.709,\ 0.725]$} \\
+Graph Temporal & \makecell[c]{$2.356\,\pm\,0.153$\\$[2.165,\ 2.546]$} & \makecell[c]{$0.248\,\pm\,0.002$\\$[0.246,\ 0.251]$} & \makecell[c]{$1.074\,\pm\,0.097$\\$[0.954,\ 1.194]$} & \makecell[c]{$0.567\,\pm\,0.014$\\$[0.549,\ 0.585]$} \\
+Sage-Voronoi & \makecell[c]{$0.698\,\pm\,0.054$\\$[0.631,\ 0.765]$} & \makecell[c]{$0.164\,\pm\,0.003$\\$[0.161,\ 0.167]$} & \makecell[c]{$0.363\,\pm\,0.021$\\$[0.336,\ 0.389]$} & \makecell[c]{$0.274\,\pm\,0.007$\\$[0.266,\ 0.282]$} \\
+GAIN & \makecell[c]{$1.558\,\pm\,0.160$\\$[1.359,\ 1.757]$} & \makecell[c]{$0.218\,\pm\,0.002$\\$[0.215,\ 0.220]$} & \makecell[c]{$0.642\,\pm\,0.049$\\$[0.582,\ 0.703]$} & \makecell[c]{$0.463\,\pm\,0.035$\\$[0.420,\ 0.506]$} \\
+GRIN & \makecell[c]{$0.552\,\pm\,0.037$\\$[0.506,\ 0.598]$} & \makecell[c]{$0.152\,\pm\,0.006$\\$[0.145,\ 0.159]$} & \makecell[c]{$0.312\,\pm\,0.019$\\$[0.288,\ 0.336]$} & \makecell[c]{$0.203\,\pm\,0.004$\\$[0.198,\ 0.208]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, $B=144$, MAE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A19}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$105.65\,\pm\,9.76$\\$[93.53,\ 117.77]$} & \makecell[c]{$126.14\,\pm\,9.67$\\$[114.14,\ 138.14]$} & \makecell[c]{$82.83\,\pm\,12.29$\\$[67.57,\ 98.08]$} & \makecell[c]{$137.36\,\pm\,4.42$\\$[131.87,\ 142.85]$} \\
+Median & \makecell[c]{$113.24\,\pm\,1.21$\\$[111.75,\ 114.74]$} & \makecell[c]{$150.25\,\pm\,11.22$\\$[136.31,\ 164.19]$} & \makecell[c]{$74.32\,\pm\,9.13$\\$[62.99,\ 85.65]$} & \makecell[c]{$119.92\,\pm\,1.19$\\$[118.45,\ 121.40]$} \\
+FFill + BFill & \makecell[c]{$106.13\,\pm\,9.29$\\$[94.60,\ 117.67]$} & \makecell[c]{$130.70\,\pm\,14.74$\\$[112.40,\ 149.00]$} & \makecell[c]{$83.08\,\pm\,12.26$\\$[67.86,\ 98.31]$} & \makecell[c]{$140.07\,\pm\,6.20$\\$[132.38,\ 147.77]$} \\
+Rolling mean & \makecell[c]{$105.69\,\pm\,9.74$\\$[93.60,\ 117.78]$} & \makecell[c]{$126.09\,\pm\,9.63$\\$[114.13,\ 138.06]$} & \makecell[c]{$82.77\,\pm\,12.28$\\$[67.53,\ 98.02]$} & \makecell[c]{$137.41\,\pm\,4.45$\\$[131.88,\ 142.94]$} \\
+KNN (scaled) & \makecell[c]{$18.29\,\pm\,2.26$\\$[15.48,\ 21.10]$} & \makecell[c]{$63.58\,\pm\,7.54$\\$[54.22,\ 72.95]$} & \makecell[c]{$30.59\,\pm\,4.99$\\$[24.40,\ 36.78]$} & \makecell[c]{$38.99\,\pm\,0.95$\\$[37.82,\ 40.17]$} \\
+KNN (unscaled) & \makecell[c]{$20.35\,\pm\,2.87$\\$[16.78,\ 23.91]$} & \makecell[c]{$64.38\,\pm\,7.50$\\$[55.07,\ 73.69]$} & \makecell[c]{$34.28\,\pm\,4.65$\\$[28.51,\ 40.05]$} & \makecell[c]{$43.11\,\pm\,2.02$\\$[40.60,\ 45.62]$} \\
+Historical & \makecell[c]{$32.08\,\pm\,1.79$\\$[29.86,\ 34.30]$} & \makecell[c]{$74.55\,\pm\,10.73$\\$[61.22,\ 87.88]$} & \makecell[c]{$39.88\,\pm\,6.52$\\$[31.78,\ 47.97]$} & \makecell[c]{$59.64\,\pm\,2.27$\\$[56.82,\ 62.45]$} \\
+Graph Laplacian & \makecell[c]{$20.20\,\pm\,1.72$\\$[18.06,\ 22.33]$} & \makecell[c]{$71.75\,\pm\,11.99$\\$[56.86,\ 86.65]$} & \makecell[c]{$39.81\,\pm\,8.28$\\$[29.53,\ 50.08]$} & \makecell[c]{$46.59\,\pm\,0.55$\\$[45.91,\ 47.27]$} \\
+Graph Temporal & \makecell[c]{$19.27\,\pm\,2.03$\\$[16.75,\ 21.78]$} & \makecell[c]{$72.76\,\pm\,11.50$\\$[58.48,\ 87.04]$} & \makecell[c]{$40.55\,\pm\,9.26$\\$[29.05,\ 52.04]$} & \makecell[c]{$47.10\,\pm\,1.18$\\$[45.64,\ 48.57]$} \\
+Sage-Voronoi & \makecell[c]{$15.20\,\pm\,2.02$\\$[12.70,\ 17.70]$} & \makecell[c]{$65.63\,\pm\,9.92$\\$[53.31,\ 77.95]$} & \makecell[c]{$39.58\,\pm\,6.36$\\$[31.68,\ 47.49]$} & \makecell[c]{$44.42\,\pm\,2.33$\\$[41.52,\ 47.31]$} \\
+GAIN & \makecell[c]{$13.55\,\pm\,4.89$\\$[7.47,\ 19.62]$} & \makecell[c]{$76.18\,\pm\,11.78$\\$[61.55,\ 90.81]$} & \makecell[c]{$34.49\,\pm\,9.89$\\$[22.22,\ 46.77]$} & \makecell[c]{$42.25\,\pm\,1.02$\\$[40.99,\ 43.52]$} \\
+GRIN & \makecell[c]{$9.59\,\pm\,1.62$\\$[7.57,\ 11.60]$} & \makecell[c]{$62.63\,\pm\,11.54$\\$[48.31,\ 76.96]$} & \makecell[c]{$28.80\,\pm\,8.29$\\$[18.51,\ 39.09]$} & \makecell[c]{$33.10\,\pm\,0.97$\\$[31.90,\ 34.30]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, $B=144$, RMSE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A20}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$201.37\,\pm\,19.72$\\$[176.88,\ 225.86]$} & \makecell[c]{$247.61\,\pm\,26.46$\\$[214.75,\ 280.46]$} & \makecell[c]{$177.53\,\pm\,51.59$\\$[113.47,\ 241.58]$} & \makecell[c]{$227.74\,\pm\,9.88$\\$[215.47,\ 240.01]$} \\
+Median & \makecell[c]{$172.09\,\pm\,2.29$\\$[169.25,\ 174.94]$} & \makecell[c]{$265.55\,\pm\,39.38$\\$[216.65,\ 314.44]$} & \makecell[c]{$166.32\,\pm\,45.07$\\$[110.36,\ 222.29]$} & \makecell[c]{$183.57\,\pm\,2.43$\\$[180.56,\ 186.58]$} \\
+FFill + BFill & \makecell[c]{$200.29\,\pm\,20.43$\\$[174.92,\ 225.65]$} & \makecell[c]{$252.74\,\pm\,41.51$\\$[201.20,\ 304.28]$} & \makecell[c]{$175.55\,\pm\,51.39$\\$[111.74,\ 239.36]$} & \makecell[c]{$230.87\,\pm\,12.86$\\$[214.91,\ 246.84]$} \\
+Rolling mean & \makecell[c]{$201.31\,\pm\,19.57$\\$[177.01,\ 225.61]$} & \makecell[c]{$247.57\,\pm\,26.45$\\$[214.73,\ 280.41]$} & \makecell[c]{$177.34\,\pm\,51.48$\\$[113.43,\ 241.26]$} & \makecell[c]{$227.76\,\pm\,9.80$\\$[215.60,\ 239.93]$} \\
+KNN (scaled) & \makecell[c]{$78.86\,\pm\,9.73$\\$[66.78,\ 90.95]$} & \makecell[c]{$180.42\,\pm\,25.00$\\$[149.38,\ 211.47]$} & \makecell[c]{$117.55\,\pm\,17.43$\\$[95.90,\ 139.19]$} & \makecell[c]{$109.13\,\pm\,8.66$\\$[98.38,\ 119.88]$} \\
+KNN (unscaled) & \makecell[c]{$90.05\,\pm\,15.64$\\$[70.64,\ 109.47]$} & \makecell[c]{$181.02\,\pm\,26.38$\\$[148.27,\ 213.77]$} & \makecell[c]{$124.32\,\pm\,17.05$\\$[103.14,\ 145.49]$} & \makecell[c]{$115.99\,\pm\,10.58$\\$[102.86,\ 129.12]$} \\
+Historical & \makecell[c]{$91.73\,\pm\,9.89$\\$[79.45,\ 104.01]$} & \makecell[c]{$177.91\,\pm\,34.10$\\$[135.56,\ 220.25]$} & \makecell[c]{$120.76\,\pm\,27.52$\\$[86.59,\ 154.94]$} & \makecell[c]{$121.05\,\pm\,6.98$\\$[112.38,\ 129.72]$} \\
+Graph Laplacian & \makecell[c]{$43.37\,\pm\,5.44$\\$[36.62,\ 50.12]$} & \makecell[c]{$218.53\,\pm\,54.97$\\$[150.28,\ 286.78]$} & \makecell[c]{$161.35\,\pm\,52.35$\\$[96.34,\ 226.36]$} & \makecell[c]{$112.57\,\pm\,8.94$\\$[101.48,\ 123.67]$} \\
+Graph Temporal & \makecell[c]{$45.16\,\pm\,8.38$\\$[34.75,\ 55.57]$} & \makecell[c]{$216.62\,\pm\,52.66$\\$[151.23,\ 282.00]$} & \makecell[c]{$159.28\,\pm\,50.83$\\$[96.16,\ 222.40]$} & \makecell[c]{$112.78\,\pm\,10.46$\\$[99.80,\ 125.77]$} \\
+Sage-Voronoi & \makecell[c]{$46.08\,\pm\,12.17$\\$[30.97,\ 61.18]$} & \makecell[c]{$201.44\,\pm\,47.25$\\$[142.77,\ 260.11]$} & \makecell[c]{$157.53\,\pm\,41.84$\\$[105.57,\ 209.48]$} & \makecell[c]{$106.81\,\pm\,10.25$\\$[94.09,\ 119.54]$} \\
+GAIN & \makecell[c]{$42.53\,\pm\,29.89$\\$[5.42,\ 79.65]$} & \makecell[c]{$222.35\,\pm\,44.50$\\$[167.09,\ 277.61]$} & \makecell[c]{$135.57\,\pm\,58.92$\\$[62.41,\ 208.74]$} & \makecell[c]{$113.95\,\pm\,5.36$\\$[107.29,\ 120.61]$} \\
+GRIN & \makecell[c]{$28.00\,\pm\,5.07$\\$[21.71,\ 34.30]$} & \makecell[c]{$186.91\,\pm\,40.22$\\$[136.96,\ 236.85]$} & \makecell[c]{$118.72\,\pm\,45.80$\\$[61.85,\ 175.59]$} & \makecell[c]{$90.23\,\pm\,11.46$\\$[76.01,\ 104.46]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, $B=144$, MRE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A21}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$8.470\,\pm\,0.543$\\$[7.796,\ 9.144]$} & \makecell[c]{$0.455\,\pm\,0.021$\\$[0.429,\ 0.481]$} & \makecell[c]{$2.634\,\pm\,0.336$\\$[2.217,\ 3.051]$} & \makecell[c]{$2.508\,\pm\,0.122$\\$[2.356,\ 2.659]$} \\
+Median & \makecell[c]{$8.770\,\pm\,0.301$\\$[8.397,\ 9.143]$} & \makecell[c]{$0.513\,\pm\,0.007$\\$[0.505,\ 0.521]$} & \makecell[c]{$2.428\,\pm\,0.100$\\$[2.304,\ 2.551]$} & \makecell[c]{$2.460\,\pm\,0.049$\\$[2.400,\ 2.521]$} \\
+FFill + BFill & \makecell[c]{$8.232\,\pm\,0.532$\\$[7.571,\ 8.893]$} & \makecell[c]{$0.467\,\pm\,0.023$\\$[0.438,\ 0.496]$} & \makecell[c]{$2.557\,\pm\,0.309$\\$[2.173,\ 2.941]$} & \makecell[c]{$2.467\,\pm\,0.141$\\$[2.291,\ 2.642]$} \\
+Rolling mean & \makecell[c]{$8.463\,\pm\,0.543$\\$[7.789,\ 9.138]$} & \makecell[c]{$0.455\,\pm\,0.021$\\$[0.429,\ 0.481]$} & \makecell[c]{$2.631\,\pm\,0.338$\\$[2.212,\ 3.050]$} & \makecell[c]{$2.507\,\pm\,0.122$\\$[2.356,\ 2.658]$} \\
+KNN (scaled) & \makecell[c]{$1.391\,\pm\,0.541$\\$[0.719,\ 2.063]$} & \makecell[c]{$0.197\,\pm\,0.010$\\$[0.184,\ 0.210]$} & \makecell[c]{$0.542\,\pm\,0.159$\\$[0.345,\ 0.739]$} & \makecell[c]{$0.463\,\pm\,0.118$\\$[0.316,\ 0.610]$} \\
+KNN (unscaled) & \makecell[c]{$1.677\,\pm\,0.710$\\$[0.794,\ 2.559]$} & \makecell[c]{$0.217\,\pm\,0.013$\\$[0.201,\ 0.233]$} & \makecell[c]{$0.619\,\pm\,0.149$\\$[0.434,\ 0.803]$} & \makecell[c]{$0.571\,\pm\,0.199$\\$[0.323,\ 0.818]$} \\
+Historical & \makecell[c]{$2.071\,\pm\,0.223$\\$[1.794,\ 2.347]$} & \makecell[c]{$0.228\,\pm\,0.008$\\$[0.218,\ 0.238]$} & \makecell[c]{$0.735\,\pm\,0.156$\\$[0.542,\ 0.929]$} & \makecell[c]{$0.756\,\pm\,0.031$\\$[0.717,\ 0.795]$} \\
+Graph Laplacian & \makecell[c]{$1.617\,\pm\,0.278$\\$[1.272,\ 1.962]$} & \makecell[c]{$0.217\,\pm\,0.013$\\$[0.201,\ 0.233]$} & \makecell[c]{$0.772\,\pm\,0.199$\\$[0.525,\ 1.019]$} & \makecell[c]{$0.491\,\pm\,0.009$\\$[0.479,\ 0.502]$} \\
+Graph Temporal & \makecell[c]{$1.708\,\pm\,0.355$\\$[1.268,\ 2.149]$} & \makecell[c]{$0.230\,\pm\,0.010$\\$[0.217,\ 0.242]$} & \makecell[c]{$0.820\,\pm\,0.269$\\$[0.486,\ 1.154]$} & \makecell[c]{$0.514\,\pm\,0.013$\\$[0.498,\ 0.529]$} \\
+Sage-Voronoi & \makecell[c]{$0.953\,\pm\,0.139$\\$[0.781,\ 1.125]$} & \makecell[c]{$0.213\,\pm\,0.012$\\$[0.198,\ 0.229]$} & \makecell[c]{$0.589\,\pm\,0.129$\\$[0.429,\ 0.749]$} & \makecell[c]{$0.361\,\pm\,0.025$\\$[0.329,\ 0.392]$} \\
+GAIN & \makecell[c]{$1.128\,\pm\,0.804$\\$[0.129,\ 2.126]$} & \makecell[c]{$0.229\,\pm\,0.009$\\$[0.218,\ 0.240]$} & \makecell[c]{$0.508\,\pm\,0.170$\\$[0.297,\ 0.720]$} & \makecell[c]{$0.405\,\pm\,0.240$\\$[0.106,\ 0.703]$} \\
+GRIN & \makecell[c]{$0.776\,\pm\,0.219$\\$[0.504,\ 1.049]$} & \makecell[c]{$0.205\,\pm\,0.018$\\$[0.183,\ 0.227]$} & \makecell[c]{$0.485\,\pm\,0.167$\\$[0.278,\ 0.692]$} & \makecell[c]{$0.260\,\pm\,0.009$\\$[0.249,\ 0.272]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, MCAR 30\%, MAE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A22}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$7.95\,\pm\,0.15$\\$[7.76,\ 8.14]$} & \makecell[c]{$32.14\,\pm\,0.40$\\$[31.65,\ 32.63]$} & \makecell[c]{$17.93\,\pm\,0.13$\\$[17.76,\ 18.10]$} & \makecell[c]{$22.63\,\pm\,0.19$\\$[22.39,\ 22.87]$} \\
+Median & \makecell[c]{$113.98\,\pm\,0.47$\\$[113.40,\ 114.56]$} & \makecell[c]{$149.75\,\pm\,0.91$\\$[148.63,\ 150.88]$} & \makecell[c]{$71.92\,\pm\,0.45$\\$[71.37,\ 72.48]$} & \makecell[c]{$119.65\,\pm\,0.60$\\$[118.91,\ 120.39]$} \\
+FFill + BFill & \makecell[c]{$9.58\,\pm\,0.13$\\$[9.42,\ 9.73]$} & \makecell[c]{$39.06\,\pm\,0.63$\\$[38.27,\ 39.84]$} & \makecell[c]{$22.01\,\pm\,0.25$\\$[21.70,\ 22.32]$} & \makecell[c]{$28.14\,\pm\,0.22$\\$[27.87,\ 28.42]$} \\
+Rolling mean & \makecell[c]{$10.72\,\pm\,0.21$\\$[10.46,\ 10.98]$} & \makecell[c]{$38.05\,\pm\,0.60$\\$[37.31,\ 38.79]$} & \makecell[c]{$21.73\,\pm\,0.18$\\$[21.50,\ 21.96]$} & \makecell[c]{$29.06\,\pm\,0.25$\\$[28.74,\ 29.37]$} \\
+KNN (scaled) & \makecell[c]{$18.56\,\pm\,0.28$\\$[18.21,\ 18.90]$} & \makecell[c]{$66.98\,\pm\,0.96$\\$[65.79,\ 68.16]$} & \makecell[c]{$30.15\,\pm\,0.30$\\$[29.77,\ 30.52]$} & \makecell[c]{$40.71\,\pm\,0.44$\\$[40.16,\ 41.26]$} \\
+KNN (unscaled) & \makecell[c]{$20.01\,\pm\,0.48$\\$[19.41,\ 20.62]$} & \makecell[c]{$68.11\,\pm\,0.84$\\$[67.07,\ 69.15]$} & \makecell[c]{$33.14\,\pm\,0.33$\\$[32.73,\ 33.55]$} & \makecell[c]{$44.04\,\pm\,0.35$\\$[43.61,\ 44.47]$} \\
+Historical & \makecell[c]{$32.73\,\pm\,0.26$\\$[32.41,\ 33.06]$} & \makecell[c]{$76.66\,\pm\,0.95$\\$[75.48,\ 77.84]$} & \makecell[c]{$40.27\,\pm\,0.14$\\$[40.10,\ 40.45]$} & \makecell[c]{$63.00\,\pm\,0.45$\\$[62.44,\ 63.56]$} \\
+Graph Laplacian & \makecell[c]{$19.77\,\pm\,0.42$\\$[19.25,\ 20.29]$} & \makecell[c]{$74.07\,\pm\,0.90$\\$[72.95,\ 75.18]$} & \makecell[c]{$38.90\,\pm\,0.46$\\$[38.32,\ 39.47]$} & \makecell[c]{$46.96\,\pm\,0.36$\\$[46.51,\ 47.41]$} \\
+Graph Temporal & \makecell[c]{$14.98\,\pm\,0.10$\\$[14.86,\ 15.10]$} & \makecell[c]{$57.67\,\pm\,0.89$\\$[56.56,\ 58.77]$} & \makecell[c]{$26.79\,\pm\,0.20$\\$[26.55,\ 27.03]$} & \makecell[c]{$40.44\,\pm\,0.35$\\$[40.01,\ 40.87]$} \\
+Sage-Voronoi & \makecell[c]{$8.99\,\pm\,0.26$\\$[8.67,\ 9.31]$} & \makecell[c]{$35.26\,\pm\,0.68$\\$[34.41,\ 36.10]$} & \makecell[c]{$20.07\,\pm\,0.27$\\$[19.74,\ 20.40]$} & \makecell[c]{$24.84\,\pm\,0.20$\\$[24.58,\ 25.09]$} \\
+GAIN & \makecell[c]{$20.97\,\pm\,0.88$\\$[19.88,\ 22.05]$} & \makecell[c]{$71.29\,\pm\,1.15$\\$[69.86,\ 72.72]$} & \makecell[c]{$33.43\,\pm\,0.39$\\$[32.95,\ 33.90]$} & \makecell[c]{$46.40\,\pm\,0.49$\\$[45.79,\ 47.00]$} \\
+GRIN & \makecell[c]{$6.15\,\pm\,0.08$\\$[6.05,\ 6.25]$} & \makecell[c]{$30.57\,\pm\,0.45$\\$[30.01,\ 31.14]$} & \makecell[c]{$15.98\,\pm\,0.08$\\$[15.88,\ 16.08]$} & \makecell[c]{$18.98\,\pm\,0.15$\\$[18.79,\ 19.16]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, MCAR 30\%, RMSE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A23}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$34.25\,\pm\,1.89$\\$[31.91,\ 36.59]$} & \makecell[c]{$93.76\,\pm\,1.74$\\$[91.60,\ 95.92]$} & \makecell[c]{$68.46\,\pm\,0.87$\\$[67.38,\ 69.55]$} & \makecell[c]{$56.02\,\pm\,1.42$\\$[54.26,\ 57.78]$} \\
+Median & \makecell[c]{$173.61\,\pm\,0.75$\\$[172.68,\ 174.55]$} & \makecell[c]{$282.24\,\pm\,2.06$\\$[279.68,\ 284.80]$} & \makecell[c]{$163.64\,\pm\,2.28$\\$[160.81,\ 166.47]$} & \makecell[c]{$193.95\,\pm\,2.15$\\$[191.28,\ 196.62]$} \\
+FFill + BFill & \makecell[c]{$46.65\,\pm\,2.00$\\$[44.16,\ 49.13]$} & \makecell[c]{$115.36\,\pm\,3.12$\\$[111.49,\ 119.23]$} & \makecell[c]{$86.76\,\pm\,2.12$\\$[84.13,\ 89.39]$} & \makecell[c]{$71.86\,\pm\,1.65$\\$[69.81,\ 73.91]$} \\
+Rolling mean & \makecell[c]{$52.34\,\pm\,2.53$\\$[49.20,\ 55.48]$} & \makecell[c]{$114.38\,\pm\,2.91$\\$[110.77,\ 117.99]$} & \makecell[c]{$83.97\,\pm\,1.74$\\$[81.81,\ 86.13]$} & \makecell[c]{$74.43\,\pm\,1.63$\\$[72.41,\ 76.45]$} \\
+KNN (scaled) & \makecell[c]{$86.30\,\pm\,1.87$\\$[83.97,\ 88.62]$} & \makecell[c]{$206.56\,\pm\,3.51$\\$[202.20,\ 210.92]$} & \makecell[c]{$118.04\,\pm\,1.91$\\$[115.68,\ 120.41]$} & \makecell[c]{$126.80\,\pm\,2.97$\\$[123.11,\ 130.48]$} \\
+KNN (unscaled) & \makecell[c]{$91.76\,\pm\,3.08$\\$[87.94,\ 95.58]$} & \makecell[c]{$209.12\,\pm\,2.78$\\$[205.67,\ 212.57]$} & \makecell[c]{$123.48\,\pm\,2.30$\\$[120.63,\ 126.33]$} & \makecell[c]{$131.30\,\pm\,2.63$\\$[128.03,\ 134.57]$} \\
+Historical & \makecell[c]{$95.28\,\pm\,1.03$\\$[94.00,\ 96.56]$} & \makecell[c]{$203.19\,\pm\,3.35$\\$[199.02,\ 207.35]$} & \makecell[c]{$119.75\,\pm\,1.28$\\$[118.17,\ 121.34]$} & \makecell[c]{$139.93\,\pm\,2.54$\\$[136.78,\ 143.09]$} \\
+Graph Laplacian & \makecell[c]{$41.23\,\pm\,0.86$\\$[40.16,\ 42.29]$} & \makecell[c]{$240.15\,\pm\,2.09$\\$[237.55,\ 242.75]$} & \makecell[c]{$164.32\,\pm\,2.82$\\$[160.82,\ 167.82]$} & \makecell[c]{$126.07\,\pm\,2.54$\\$[122.92,\ 129.22]$} \\
+Graph Temporal & \makecell[c]{$34.95\,\pm\,0.78$\\$[33.98,\ 35.92]$} & \makecell[c]{$173.04\,\pm\,4.39$\\$[167.59,\ 178.49]$} & \makecell[c]{$100.09\,\pm\,1.56$\\$[98.16,\ 102.02]$} & \makecell[c]{$106.58\,\pm\,2.99$\\$[102.86,\ 110.30]$} \\
+Sage-Voronoi & \makecell[c]{$37.12\,\pm\,1.96$\\$[34.69,\ 39.56]$} & \makecell[c]{$114.52\,\pm\,3.43$\\$[110.27,\ 118.78]$} & \makecell[c]{$79.57\,\pm\,1.77$\\$[77.37,\ 81.76]$} & \makecell[c]{$65.59\,\pm\,1.96$\\$[63.15,\ 68.03]$} \\
+GAIN & \makecell[c]{$57.76\,\pm\,3.85$\\$[52.98,\ 62.54]$} & \makecell[c]{$224.94\,\pm\,3.36$\\$[220.77,\ 229.12]$} & \makecell[c]{$128.78\,\pm\,3.24$\\$[124.75,\ 132.81]$} & \makecell[c]{$126.19\,\pm\,2.43$\\$[123.17,\ 129.21]$} \\
+GRIN & \makecell[c]{$27.84\,\pm\,1.55$\\$[25.92,\ 29.76]$} & \makecell[c]{$97.91\,\pm\,2.98$\\$[94.21,\ 101.60]$} & \makecell[c]{$68.01\,\pm\,0.73$\\$[67.10,\ 68.92]$} & \makecell[c]{$51.53\,\pm\,1.70$\\$[49.43,\ 53.64]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, MCAR 30\%, MRE by count and road-graph degree strata. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A24}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcccc}
+\toprule
+Method / variant & Low count & High count & Degree 0--2 & Degree $\geq3$ \\
+\midrule
+Linear & \makecell[c]{$0.511\,\pm\,0.005$\\$[0.505,\ 0.517]$} & \makecell[c]{$0.169\,\pm\,0.001$\\$[0.167,\ 0.170]$} & \makecell[c]{$0.302\,\pm\,0.004$\\$[0.297,\ 0.307]$} & \makecell[c]{$0.229\,\pm\,0.003$\\$[0.225,\ 0.233]$} \\
+Median & \makecell[c]{$8.597\,\pm\,0.036$\\$[8.553,\ 8.642]$} & \makecell[c]{$0.515\,\pm\,0.001$\\$[0.514,\ 0.516]$} & \makecell[c]{$2.452\,\pm\,0.002$\\$[2.450,\ 2.455]$} & \makecell[c]{$2.350\,\pm\,0.020$\\$[2.326,\ 2.374]$} \\
+FFill + BFill & \makecell[c]{$0.589\,\pm\,0.007$\\$[0.580,\ 0.597]$} & \makecell[c]{$0.201\,\pm\,0.003$\\$[0.197,\ 0.204]$} & \makecell[c]{$0.352\,\pm\,0.005$\\$[0.347,\ 0.358]$} & \makecell[c]{$0.273\,\pm\,0.004$\\$[0.269,\ 0.278]$} \\
+Rolling mean & \makecell[c]{$0.592\,\pm\,0.008$\\$[0.582,\ 0.602]$} & \makecell[c]{$0.179\,\pm\,0.002$\\$[0.177,\ 0.181]$} & \makecell[c]{$0.329\,\pm\,0.004$\\$[0.324,\ 0.333]$} & \makecell[c]{$0.276\,\pm\,0.004$\\$[0.271,\ 0.280]$} \\
+KNN (scaled) & \makecell[c]{$1.255\,\pm\,0.033$\\$[1.214,\ 1.295]$} & \makecell[c]{$0.204\,\pm\,0.001$\\$[0.202,\ 0.205]$} & \makecell[c]{$0.481\,\pm\,0.010$\\$[0.468,\ 0.493]$} & \makecell[c]{$0.444\,\pm\,0.015$\\$[0.425,\ 0.463]$} \\
+KNN (unscaled) & \makecell[c]{$1.404\,\pm\,0.058$\\$[1.332,\ 1.476]$} & \makecell[c]{$0.224\,\pm\,0.002$\\$[0.222,\ 0.226]$} & \makecell[c]{$0.548\,\pm\,0.012$\\$[0.533,\ 0.563]$} & \makecell[c]{$0.503\,\pm\,0.021$\\$[0.477,\ 0.529]$} \\
+Historical & \makecell[c]{$1.904\,\pm\,0.019$\\$[1.880,\ 1.928]$} & \makecell[c]{$0.230\,\pm\,0.001$\\$[0.228,\ 0.231]$} & \makecell[c]{$0.707\,\pm\,0.008$\\$[0.697,\ 0.717]$} & \makecell[c]{$0.718\,\pm\,0.010$\\$[0.706,\ 0.730]$} \\
+Graph Laplacian & \makecell[c]{$1.469\,\pm\,0.014$\\$[1.451,\ 1.486]$} & \makecell[c]{$0.223\,\pm\,0.003$\\$[0.219,\ 0.226]$} & \makecell[c]{$0.674\,\pm\,0.009$\\$[0.664,\ 0.685]$} & \makecell[c]{$0.481\,\pm\,0.004$\\$[0.476,\ 0.486]$} \\
+Graph Temporal & \makecell[c]{$1.185\,\pm\,0.008$\\$[1.175,\ 1.196]$} & \makecell[c]{$0.194\,\pm\,0.001$\\$[0.193,\ 0.196]$} & \makecell[c]{$0.516\,\pm\,0.003$\\$[0.513,\ 0.520]$} & \makecell[c]{$0.425\,\pm\,0.004$\\$[0.421,\ 0.430]$} \\
+Sage-Voronoi & \makecell[c]{$0.518\,\pm\,0.020$\\$[0.494,\ 0.542]$} & \makecell[c]{$0.146\,\pm\,0.002$\\$[0.144,\ 0.148]$} & \makecell[c]{$0.292\,\pm\,0.004$\\$[0.287,\ 0.297]$} & \makecell[c]{$0.235\,\pm\,0.006$\\$[0.228,\ 0.243]$} \\
+GAIN & \makecell[c]{$1.489\,\pm\,0.073$\\$[1.399,\ 1.579]$} & \makecell[c]{$0.212\,\pm\,0.001$\\$[0.210,\ 0.214]$} & \makecell[c]{$0.616\,\pm\,0.017$\\$[0.595,\ 0.637]$} & \makecell[c]{$0.510\,\pm\,0.024$\\$[0.481,\ 0.539]$} \\
+GRIN & \makecell[c]{$0.443\,\pm\,0.010$\\$[0.430,\ 0.456]$} & \makecell[c]{$0.142\,\pm\,0.009$\\$[0.131,\ 0.153]$} & \makecell[c]{$0.272\,\pm\,0.004$\\$[0.267,\ 0.277]$} & \makecell[c]{$0.179\,\pm\,0.003$\\$[0.176,\ 0.183]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, MAE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A25}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$72410.75\,\pm\,12109.05$\\$[57375.38,\ 87446.11]$} & \makecell[c]{$6150.56\,\pm\,2243.87$\\$[3364.43,\ 8936.69]$} & \makecell[c]{$980293.78\,\pm\,377426.58$\\$[511656.79,\ 1448930.77]$} \\
+Median & \makecell[c]{$90035.00\,\pm\,16381.39$\\$[69694.82,\ 110375.18]$} & \makecell[c]{$231525.20\,\pm\,2903.38$\\$[227920.17,\ 235130.23]$} & \makecell[c]{$611806.00\,\pm\,163725.07$\\$[408514.47,\ 815097.53]$} \\
+FFill + BFill & \makecell[c]{$85656.88\,\pm\,18957.11$\\$[62118.52,\ 109195.24]$} & \makecell[c]{$8610.08\,\pm\,1657.37$\\$[6552.18,\ 10667.98]$} & \makecell[c]{$972934.90\,\pm\,366138.17$\\$[518314.31,\ 1427555.49]$} \\
+Rolling mean & \makecell[c]{$72274.58\,\pm\,12233.86$\\$[57084.23,\ 87464.93]$} & \makecell[c]{$9196.60\,\pm\,2676.48$\\$[5873.31,\ 12519.90]$} & \makecell[c]{$980797.96\,\pm\,372104.43$\\$[518769.29,\ 1442826.64]$} \\
+KNN (scaled) & \makecell[c]{$190782.77\,\pm\,15735.16$\\$[171244.99,\ 210320.55]$} & \makecell[c]{$446441.30\,\pm\,10826.67$\\$[432998.21,\ 459884.38]$} & \makecell[c]{$589644.89\,\pm\,154911.41$\\$[397296.97,\ 781992.81]$} \\
+KNN (unscaled) & \makecell[c]{$31607.26\,\pm\,9718.70$\\$[19539.90,\ 43674.62]$} & \makecell[c]{$15783.40\,\pm\,2244.63$\\$[12996.33,\ 18570.47]$} & \makecell[c]{$589644.89\,\pm\,154911.41$\\$[397296.97,\ 781992.81]$} \\
+Historical & \makecell[c]{$73200.83\,\pm\,15691.08$\\$[53717.78,\ 92683.88]$} & \makecell[c]{$198564.57\,\pm\,2480.62$\\$[195484.47,\ 201644.66]$} & \makecell[c]{$451834.57\,\pm\,100964.69$\\$[326470.35,\ 577198.80]$} \\
+Graph Laplacian & \makecell[c]{$85428.42\,\pm\,8061.82$\\$[75418.35,\ 95438.48]$} & \makecell[c]{$212077.53\,\pm\,5574.20$\\$[205156.24,\ 218998.82]$} & \makecell[c]{$589644.89\,\pm\,154911.41$\\$[397296.97,\ 781992.81]$} \\
+Graph Temporal & \makecell[c]{$80436.01\,\pm\,15084.37$\\$[61706.29,\ 99165.74]$} & \makecell[c]{$122172.38\,\pm\,2556.79$\\$[118997.70,\ 125347.05]$} & \makecell[c]{$1453677.99\,\pm\,738136.06$\\$[537161.02,\ 2370194.96]$} \\
+Sage-Voronoi & \makecell[c]{$54436.33\,\pm\,22194.49$\\$[26878.23,\ 81994.43]$} & \makecell[c]{$16735.64\,\pm\,5408.87$\\$[10019.65,\ 23451.63]$} & \makecell[c]{$945616.77\,\pm\,491318.39$\\$[335564.41,\ 1555669.12]$} \\
+GAIN & \makecell[c]{$39654.53\,\pm\,7559.95$\\$[30267.62,\ 49041.45]$} & \makecell[c]{$44242.60\,\pm\,7305.22$\\$[35171.98,\ 53313.23]$} & \makecell[c]{$962114.41\,\pm\,465157.59$\\$[384544.98,\ 1539683.84]$} \\
+GRIN & \makecell[c]{$31783.75\,\pm\,6919.57$\\$[23191.97,\ 40375.53]$} & \makecell[c]{$42622.32\,\pm\,7061.68$\\$[33854.09,\ 51390.56]$} & \makecell[c]{$839838.44\,\pm\,321189.96$\\$[441028.42,\ 1238648.45]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, RMSE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A26}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$93735.94\,\pm\,25103.74$\\$[62565.54,\ 124906.35]$} & \makecell[c]{$7565.38\,\pm\,2288.36$\\$[4724.00,\ 10406.75]$} & \makecell[c]{$1060912.23\,\pm\,344025.04$\\$[633748.73,\ 1488075.73]$} \\
+Median & \makecell[c]{$109975.87\,\pm\,22153.24$\\$[82468.99,\ 137482.76]$} & \makecell[c]{$252456.67\,\pm\,3676.35$\\$[247891.87,\ 257021.46]$} & \makecell[c]{$691354.84\,\pm\,182989.29$\\$[464143.63,\ 918566.06]$} \\
+FFill + BFill & \makecell[c]{$114645.91\,\pm\,39533.28$\\$[65558.86,\ 163732.96]$} & \makecell[c]{$10368.82\,\pm\,1634.50$\\$[8339.31,\ 12398.32]$} & \makecell[c]{$1113379.52\,\pm\,313875.24$\\$[723651.93,\ 1503107.11]$} \\
+Rolling mean & \makecell[c]{$93662.62\,\pm\,25340.16$\\$[62198.66,\ 125126.59]$} & \makecell[c]{$10891.94\,\pm\,2575.31$\\$[7694.27,\ 14089.61]$} & \makecell[c]{$1062969.39\,\pm\,336871.97$\\$[644687.59,\ 1481251.19]$} \\
+KNN (scaled) & \makecell[c]{$228627.08\,\pm\,20218.51$\\$[203522.48,\ 253731.68]$} & \makecell[c]{$485432.27\,\pm\,10598.40$\\$[472272.61,\ 498591.92]$} & \makecell[c]{$654996.70\,\pm\,160460.72$\\$[455758.40,\ 854235.01]$} \\
+KNN (unscaled) & \makecell[c]{$45674.69\,\pm\,15208.28$\\$[26791.12,\ 64558.26]$} & \makecell[c]{$20444.83\,\pm\,3757.69$\\$[15779.04,\ 25110.62]$} & \makecell[c]{$654996.70\,\pm\,160460.72$\\$[455758.40,\ 854235.01]$} \\
+Historical & \makecell[c]{$90330.33\,\pm\,22764.42$\\$[62064.57,\ 118596.08]$} & \makecell[c]{$216997.29\,\pm\,2943.84$\\$[213342.03,\ 220652.54]$} & \makecell[c]{$517418.71\,\pm\,166511.62$\\$[310667.23,\ 724170.19]$} \\
+Graph Laplacian & \makecell[c]{$111593.30\,\pm\,12648.95$\\$[95887.56,\ 127299.05]$} & \makecell[c]{$221781.34\,\pm\,6144.90$\\$[214151.44,\ 229411.24]$} & \makecell[c]{$654996.70\,\pm\,160460.72$\\$[455758.40,\ 854235.01]$} \\
+Graph Temporal & \makecell[c]{$106584.35\,\pm\,16174.92$\\$[86500.54,\ 126668.17]$} & \makecell[c]{$128068.48\,\pm\,2290.52$\\$[125224.42,\ 130912.54]$} & \makecell[c]{$1519204.64\,\pm\,727950.07$\\$[615335.24,\ 2423074.04]$} \\
+Sage-Voronoi & \makecell[c]{$76745.87\,\pm\,27492.24$\\$[42609.74,\ 110881.99]$} & \makecell[c]{$19582.00\,\pm\,5656.03$\\$[12559.11,\ 26604.89]$} & \makecell[c]{$1077640.27\,\pm\,516068.67$\\$[436856.39,\ 1718424.16]$} \\
+GAIN & \makecell[c]{$56597.96\,\pm\,11846.24$\\$[41888.92,\ 71307.01]$} & \makecell[c]{$51489.16\,\pm\,8047.30$\\$[41497.12,\ 61481.21]$} & \makecell[c]{$1056563.77\,\pm\,453209.88$\\$[493829.38,\ 1619298.16]$} \\
+GRIN & \makecell[c]{$45683.62\,\pm\,10595.07$\\$[32528.10,\ 58839.14]$} & \makecell[c]{$46143.35\,\pm\,7370.48$\\$[36991.70,\ 55295.01]$} & \makecell[c]{$953917.01\,\pm\,384726.11$\\$[476216.45,\ 1431617.56]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{January 2023, MRE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A27}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$0.019\,\pm\,0.004$\\$[0.013,\ 0.024]$} & \makecell[c]{$0.002\,\pm\,0.001$\\$[0.001,\ 0.003]$} & \makecell[c]{$0.225\,\pm\,0.076$\\$[0.131,\ 0.319]$} \\
+Median & \makecell[c]{$0.022\,\pm\,0.004$\\$[0.017,\ 0.027]$} & \makecell[c]{$0.058\,\pm\,0.001$\\$[0.057,\ 0.059]$} & \makecell[c]{$0.140\,\pm\,0.033$\\$[0.098,\ 0.181]$} \\
+FFill + BFill & \makecell[c]{$0.022\,\pm\,0.007$\\$[0.014,\ 0.031]$} & \makecell[c]{$0.003\,\pm\,0.001$\\$[0.002,\ 0.004]$} & \makecell[c]{$0.236\,\pm\,0.092$\\$[0.121,\ 0.350]$} \\
+Rolling mean & \makecell[c]{$0.019\,\pm\,0.004$\\$[0.013,\ 0.024]$} & \makecell[c]{$0.003\,\pm\,0.001$\\$[0.002,\ 0.005]$} & \makecell[c]{$0.226\,\pm\,0.075$\\$[0.132,\ 0.319]$} \\
+KNN (scaled) & \makecell[c]{$0.044\,\pm\,0.003$\\$[0.040,\ 0.048]$} & \makecell[c]{$0.108\,\pm\,0.003$\\$[0.104,\ 0.112]$} & \makecell[c]{$0.137\,\pm\,0.037$\\$[0.090,\ 0.183]$} \\
+KNN (unscaled) & \makecell[c]{$0.008\,\pm\,0.003$\\$[0.004,\ 0.011]$} & \makecell[c]{$0.004\,\pm\,0.000$\\$[0.004,\ 0.005]$} & \makecell[c]{$0.137\,\pm\,0.037$\\$[0.090,\ 0.183]$} \\
+Historical & \makecell[c]{$0.018\,\pm\,0.004$\\$[0.013,\ 0.023]$} & \makecell[c]{$0.055\,\pm\,0.000$\\$[0.054,\ 0.055]$} & \makecell[c]{$0.115\,\pm\,0.054$\\$[0.047,\ 0.182]$} \\
+Graph Laplacian & \makecell[c]{$0.020\,\pm\,0.002$\\$[0.018,\ 0.023]$} & \makecell[c]{$0.054\,\pm\,0.001$\\$[0.052,\ 0.055]$} & \makecell[c]{$0.137\,\pm\,0.037$\\$[0.090,\ 0.183]$} \\
+Graph Temporal & \makecell[c]{$0.019\,\pm\,0.004$\\$[0.014,\ 0.024]$} & \makecell[c]{$0.031\,\pm\,0.001$\\$[0.030,\ 0.032]$} & \makecell[c]{$0.322\,\pm\,0.153$\\$[0.132,\ 0.511]$} \\
+Sage-Voronoi & \makecell[c]{$0.014\,\pm\,0.006$\\$[0.006,\ 0.022]$} & \makecell[c]{$0.006\,\pm\,0.002$\\$[0.004,\ 0.008]$} & \makecell[c]{$0.207\,\pm\,0.109$\\$[0.072,\ 0.343]$} \\
+GAIN & \makecell[c]{$0.010\,\pm\,0.001$\\$[0.008,\ 0.011]$} & \makecell[c]{$0.011\,\pm\,0.002$\\$[0.009,\ 0.013]$} & \makecell[c]{$0.244\,\pm\,0.181$\\$[0.020,\ 0.469]$} \\
+GRIN & \makecell[c]{$0.008\,\pm\,0.001$\\$[0.006,\ 0.009]$} & \makecell[c]{$0.011\,\pm\,0.002$\\$[0.009,\ 0.013]$} & \makecell[c]{$0.187\,\pm\,0.063$\\$[0.108,\ 0.265]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, MAE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A28}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$31034.47\,\pm\,8046.66$\\$[21043.22,\ 41025.72]$} & \makecell[c]{$4149.24\,\pm\,662.27$\\$[3326.93,\ 4971.56]$} & \makecell[c]{$928936.29\,\pm\,470488.66$\\$[344747.46,\ 1513125.12]$} \\
+Median & \makecell[c]{$27838.31\,\pm\,4548.63$\\$[22190.44,\ 33486.17]$} & \makecell[c]{$193375.25\,\pm\,2431.43$\\$[190356.23,\ 196394.26]$} & \makecell[c]{$391730.10\,\pm\,291623.22$\\$[29632.05,\ 753828.15]$} \\
+FFill + BFill & \makecell[c]{$32613.12\,\pm\,7468.78$\\$[23339.40,\ 41886.84]$} & \makecell[c]{$5690.29\,\pm\,1070.17$\\$[4361.50,\ 7019.08]$} & \makecell[c]{$964772.10\,\pm\,547238.63$\\$[285285.59,\ 1644258.61]$} \\
+Rolling mean & \makecell[c]{$30995.58\,\pm\,7975.92$\\$[21092.16,\ 40898.99]$} & \makecell[c]{$5960.51\,\pm\,1020.42$\\$[4693.48,\ 7227.53]$} & \makecell[c]{$930489.38\,\pm\,470877.39$\\$[345817.88,\ 1515160.88]$} \\
+KNN (scaled) & \makecell[c]{$12934.76\,\pm\,1929.70$\\$[10538.72,\ 15330.80]$} & \makecell[c]{$58304.09\,\pm\,1738.37$\\$[56145.61,\ 60462.56]$} & \makecell[c]{$395205.05\,\pm\,290778.10$\\$[34156.36,\ 756253.74]$} \\
+KNN (unscaled) & \makecell[c]{$13671.03\,\pm\,2226.58$\\$[10906.36,\ 16435.70]$} & \makecell[c]{$33660.05\,\pm\,1392.31$\\$[31931.26,\ 35388.83]$} & \makecell[c]{$395205.05\,\pm\,290778.10$\\$[34156.36,\ 756253.74]$} \\
+Historical & \makecell[c]{$25138.25\,\pm\,2588.35$\\$[21924.38,\ 28352.12]$} & \makecell[c]{$198701.36\,\pm\,1566.27$\\$[196756.58,\ 200646.14]$} & \makecell[c]{$337485.08\,\pm\,280791.67$\\$[-11163.83,\ 686133.98]$} \\
+Graph Laplacian & \makecell[c]{$14703.42\,\pm\,3090.71$\\$[10865.79,\ 18541.05]$} & \makecell[c]{$27298.32\,\pm\,2212.11$\\$[24551.62,\ 30045.02]$} & \makecell[c]{$395205.05\,\pm\,290778.10$\\$[34156.36,\ 756253.74]$} \\
+Graph Temporal & \makecell[c]{$15291.87\,\pm\,3150.52$\\$[11379.98,\ 19203.76]$} & \makecell[c]{$18969.44\,\pm\,2183.87$\\$[16257.82,\ 21681.07]$} & \makecell[c]{$877365.88\,\pm\,466034.82$\\$[298707.22,\ 1456024.53]$} \\
+Sage-Voronoi & \makecell[c]{$14930.71\,\pm\,2077.24$\\$[12351.47,\ 17509.94]$} & \makecell[c]{$11986.24\,\pm\,2893.52$\\$[8393.46,\ 15579.02]$} & \makecell[c]{$1198269.84\,\pm\,494366.23$\\$[584433.08,\ 1812106.59]$} \\
+GAIN & \makecell[c]{$19546.61\,\pm\,3036.68$\\$[15776.07,\ 23317.14]$} & \makecell[c]{$33139.96\,\pm\,1489.54$\\$[31290.46,\ 34989.47]$} & \makecell[c]{$1993002.23\,\pm\,395703.37$\\$[1501671.59,\ 2484332.86]$} \\
+GRIN & \makecell[c]{$12752.65\,\pm\,3329.79$\\$[8618.17,\ 16887.14]$} & \makecell[c]{$20186.61\,\pm\,2476.21$\\$[17111.99,\ 23261.23]$} & \makecell[c]{$380694.76\,\pm\,116215.08$\\$[236394.68,\ 524994.84]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, RMSE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A29}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$42371.99\,\pm\,12266.90$\\$[27140.61,\ 57603.36]$} & \makecell[c]{$5220.02\,\pm\,758.17$\\$[4278.62,\ 6161.41]$} & \makecell[c]{$1151177.89\,\pm\,631814.50$\\$[366676.57,\ 1935679.21]$} \\
+Median & \makecell[c]{$37182.80\,\pm\,5998.52$\\$[29734.65,\ 44630.94]$} & \makecell[c]{$228507.00\,\pm\,3142.43$\\$[224605.15,\ 232408.84]$} & \makecell[c]{$429435.01\,\pm\,330486.13$\\$[19082.28,\ 839787.74]$} \\
+FFill + BFill & \makecell[c]{$45373.38\,\pm\,11657.47$\\$[30898.72,\ 59848.04]$} & \makecell[c]{$7169.11\,\pm\,907.52$\\$[6042.27,\ 8295.95]$} & \makecell[c]{$1197030.00\,\pm\,691932.87$\\$[337881.87,\ 2056178.14]$} \\
+Rolling mean & \makecell[c]{$42324.26\,\pm\,12206.92$\\$[27167.37,\ 57481.16]$} & \makecell[c]{$7366.62\,\pm\,1233.95$\\$[5834.46,\ 8898.77]$} & \makecell[c]{$1152280.61\,\pm\,630178.26$\\$[369810.95,\ 1934750.27]$} \\
+KNN (scaled) & \makecell[c]{$23804.14\,\pm\,2738.26$\\$[20404.14,\ 27204.13]$} & \makecell[c]{$70492.53\,\pm\,2513.60$\\$[67371.48,\ 73613.58]$} & \makecell[c]{$432017.13\,\pm\,329251.82$\\$[23197.00,\ 840837.25]$} \\
+KNN (unscaled) & \makecell[c]{$24235.77\,\pm\,3901.40$\\$[19391.54,\ 29079.99]$} & \makecell[c]{$44152.82\,\pm\,3043.37$\\$[40373.98,\ 47931.66]$} & \makecell[c]{$432017.13\,\pm\,329251.82$\\$[23197.00,\ 840837.25]$} \\
+Historical & \makecell[c]{$32296.63\,\pm\,3429.63$\\$[28038.18,\ 36555.08]$} & \makecell[c]{$231819.60\,\pm\,1790.85$\\$[229595.97,\ 234043.23]$} & \makecell[c]{$379035.11\,\pm\,273528.22$\\$[39404.97,\ 718665.25]$} \\
+Graph Laplacian & \makecell[c]{$24835.53\,\pm\,6201.29$\\$[17135.62,\ 32535.45]$} & \makecell[c]{$35485.53\,\pm\,2436.84$\\$[32459.79,\ 38511.27]$} & \makecell[c]{$432017.13\,\pm\,329251.82$\\$[23197.00,\ 840837.25]$} \\
+Graph Temporal & \makecell[c]{$25373.72\,\pm\,6073.65$\\$[17832.28,\ 32915.16]$} & \makecell[c]{$24406.78\,\pm\,3891.38$\\$[19575.00,\ 29238.57]$} & \makecell[c]{$1097689.10\,\pm\,612649.02$\\$[336984.87,\ 1858393.34]$} \\
+Sage-Voronoi & \makecell[c]{$21867.12\,\pm\,4852.48$\\$[15841.98,\ 27892.27]$} & \makecell[c]{$14572.64\,\pm\,3140.81$\\$[10672.81,\ 18472.47]$} & \makecell[c]{$1514135.61\,\pm\,687397.74$\\$[660618.59,\ 2367652.63]$} \\
+GAIN & \makecell[c]{$31231.74\,\pm\,5273.92$\\$[24683.30,\ 37780.18]$} & \makecell[c]{$44286.82\,\pm\,2021.76$\\$[41776.47,\ 46797.16]$} & \makecell[c]{$2305153.39\,\pm\,407108.01$\\$[1799662.03,\ 2810644.75]$} \\
+GRIN & \makecell[c]{$21933.16\,\pm\,5011.53$\\$[15710.52,\ 28155.81]$} & \makecell[c]{$22050.23\,\pm\,2362.88$\\$[19116.33,\ 24984.13]$} & \makecell[c]{$442367.46\,\pm\,144468.27$\\$[262986.41,\ 621748.51]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{October--December 2022, MRE of reconstructed daily sensor-count sums on affected test days. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A30}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & $B=144$ & MCAR 30\% & Synchronous \\
+\midrule
+Linear & \makecell[c]{$0.008\,\pm\,0.002$\\$[0.005,\ 0.010]$} & \makecell[c]{$0.001\,\pm\,0.000$\\$[0.001,\ 0.001]$} & \makecell[c]{$0.259\,\pm\,0.117$\\$[0.113,\ 0.404]$} \\
+Median & \makecell[c]{$0.008\,\pm\,0.001$\\$[0.006,\ 0.009]$} & \makecell[c]{$0.057\,\pm\,0.001$\\$[0.057,\ 0.058]$} & \makecell[c]{$0.124\,\pm\,0.123$\\$[-0.029,\ 0.277]$} \\
+FFill + BFill & \makecell[c]{$0.008\,\pm\,0.002$\\$[0.006,\ 0.011]$} & \makecell[c]{$0.002\,\pm\,0.000$\\$[0.001,\ 0.002]$} & \makecell[c]{$0.267\,\pm\,0.135$\\$[0.099,\ 0.435]$} \\
+Rolling mean & \makecell[c]{$0.008\,\pm\,0.002$\\$[0.005,\ 0.010]$} & \makecell[c]{$0.002\,\pm\,0.000$\\$[0.001,\ 0.002]$} & \makecell[c]{$0.259\,\pm\,0.117$\\$[0.113,\ 0.405]$} \\
+KNN (scaled) & \makecell[c]{$0.003\,\pm\,0.000$\\$[0.003,\ 0.004]$} & \makecell[c]{$0.014\,\pm\,0.000$\\$[0.014,\ 0.015]$} & \makecell[c]{$0.125\,\pm\,0.124$\\$[-0.028,\ 0.279]$} \\
+KNN (unscaled) & \makecell[c]{$0.004\,\pm\,0.001$\\$[0.003,\ 0.004]$} & \makecell[c]{$0.008\,\pm\,0.000$\\$[0.008,\ 0.009]$} & \makecell[c]{$0.125\,\pm\,0.124$\\$[-0.028,\ 0.279]$} \\
+Historical & \makecell[c]{$0.007\,\pm\,0.001$\\$[0.006,\ 0.008]$} & \makecell[c]{$0.060\,\pm\,0.000$\\$[0.060,\ 0.061]$} & \makecell[c]{$0.110\,\pm\,0.128$\\$[-0.048,\ 0.269]$} \\
+Graph Laplacian & \makecell[c]{$0.004\,\pm\,0.001$\\$[0.003,\ 0.005]$} & \makecell[c]{$0.007\,\pm\,0.001$\\$[0.006,\ 0.008]$} & \makecell[c]{$0.125\,\pm\,0.124$\\$[-0.028,\ 0.279]$} \\
+Graph Temporal & \makecell[c]{$0.004\,\pm\,0.001$\\$[0.003,\ 0.005]$} & \makecell[c]{$0.005\,\pm\,0.001$\\$[0.004,\ 0.006]$} & \makecell[c]{$0.245\,\pm\,0.117$\\$[0.100,\ 0.390]$} \\
+Sage-Voronoi & \makecell[c]{$0.004\,\pm\,0.001$\\$[0.003,\ 0.005]$} & \makecell[c]{$0.003\,\pm\,0.001$\\$[0.002,\ 0.004]$} & \makecell[c]{$0.320\,\pm\,0.089$\\$[0.209,\ 0.431]$} \\
+GAIN & \makecell[c]{$0.005\,\pm\,0.001$\\$[0.004,\ 0.006]$} & \makecell[c]{$0.010\,\pm\,0.000$\\$[0.009,\ 0.010]$} & \makecell[c]{$0.594\,\pm\,0.283$\\$[0.242,\ 0.945]$} \\
+GRIN & \makecell[c]{$0.003\,\pm\,0.001$\\$[0.002,\ 0.004]$} & \makecell[c]{$0.005\,\pm\,0.001$\\$[0.004,\ 0.006]$} & \makecell[c]{$0.110\,\pm\,0.055$\\$[0.041,\ 0.178]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\begin{table}[htbp]
+\centering
+\caption{{Plain one-step (10-minute) Sage-Voronoi forecasting with observed past inputs. MAE and RMSE are in vehicles per 10-minute interval; MRE is dimensionless. Cells give mean $\pm$ sample SD and [95\% Student-$t$ CI] across five seed runs.}}
+\label{tab:p03_A31}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+Method / variant & MAE & RMSE & MRE \\
+\midrule
+January 2023 & \makecell[c]{$28.24\,\pm\,0.37$\\$[27.78,\ 28.69]$} & \makecell[c]{$105.57\,\pm\,4.79$\\$[99.63,\ 111.51]$} & \makecell[c]{$0.288\,\pm\,0.009$\\$[0.277,\ 0.299]$} \\
+October--December 2022 & \makecell[c]{$21.58\,\pm\,0.19$\\$[21.35,\ 21.81]$} & \makecell[c]{$66.06\,\pm\,0.47$\\$[65.48,\ 66.65]$} & \makecell[c]{$0.244\,\pm\,0.004$\\$[0.239,\ 0.250]$} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\end{table}
+
+\clearpage
+
+\endgroup
