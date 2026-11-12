@@ -84,12 +84,13 @@ def load_dataset(cfg, out):
     sd = np.nanstd(train, 0)
     sd[sd < 1e-6] = 1
     med = np.nanmedian(train, 0)
-    edges = pd.read_csv(ROOT / cfg["edges"])
-    idx = {s: i for i, s in enumerate(names)}
-    A = np.zeros((len(names), len(names)))
-    for u, v in edges.iloc[:, :2].itertuples(index=False, name=None):
-        if u in idx and v in idx and u != v:
-            A[idx[u], idx[v]] = A[idx[v], idx[u]] = 1
+    from graph_reduction import reduce_graph
+
+    A, graph_audit = reduce_graph(
+        ROOT / cfg["edges"], names, df.columns.tolist()
+    )
+    out.mkdir(parents=True, exist_ok=True)
+    atomic_json(out / "graph_reduction.json", graph_audit)
     splits = {"train": [0, a], "validation": [a, b], "test": [b, len(x)]}
     meta = {
         "config": cfg,
@@ -203,7 +204,7 @@ def make_mask(x, scenario, seed, profile=None, train=None):
                 if shared is not None
                 else int(rng.integers(1, T - length))
             )
-            mask[start : start + length, c] = obs[start : start + length, c]
+            mask[start: start + length, c] = obs[start: start + length, c]
     elif kind == "empirical_replay":
         # Only train NaN, never zeros or quality-threshold exclusions.
         natural = np.isnan(train)
@@ -215,7 +216,7 @@ def make_mask(x, scenario, seed, profile=None, train=None):
         for t in range(0, T, 144):
             n = min(144, T - t)
             s = int(rng.integers(0, len(train) - n + 1))
-            mask[t : t + n] = natural[s : s + n] & obs[t : t + n]
+            mask[t: t + n] = natural[s: s + n] & obs[t: t + n]
     else:
         raise ValueError(kind)
     if not mask.any():
